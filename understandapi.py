@@ -40,8 +40,24 @@ def getATFD(classObj):
 def getWMC(classObj):
     return classObj.metric(["SumCyclomaticModified"])['SumCyclomaticModified'] or 0
 
+#LMC (Local Method Count)
+#Class-Level Metric
+def getLMC(classObj):
+    return classObj.metric(["CountDeclMethod"])['CountDeclMethod'] or 0
 
-# TCC (Tight Class Cohesion) 
+#TMC (Total Method Count)
+#Class-Level Metric
+#Includes all inherited methods as well as local
+def getTMC(classObj):
+    return classObj.metric(["CountDeclMethodAll"])['CountDeclMethodAll'] or 0
+
+#Inputs
+#Method-Level Metric
+#Includes parameters and global variables read
+def getInputs(methodObj):
+    return methodObj.metric(["CountInput"])['CountInput'] or 0
+
+# TCC (Tight Class Cohesion)
 # Class-Level Metric
 def getTCC(classObj):
     methods = classObj.ents("Define", "Method")
@@ -70,7 +86,7 @@ def getTCC(classObj):
         return (numberOfShares / numberOfPairs) * 1.0
 
 # LOC (Lines of Code)
-# Class- or metric-level metric
+# Class- or method-level metric
 def getLOC(classOrMethodObj):
     return classOrMethodObj.metric(["CountLineCode"])['CountLineCode'] or 0
 
@@ -90,23 +106,39 @@ def getCMC(classObj, complexityThreshold):
 def getCyclomatic(methodObj):
     return methodObj.metric(["Cyclomatic"])['Cyclomatic'] or 0
 
+# Number of Public Methods
+# Class level metric
+def getNOPA(classObj):
+    return classObj.metric(["CountDeclMethodPublic"])['CountDeclMethodPublic'] or 0
+
+# Lack of Cohesion of Methods
+# Method Level metric
+def getLCOM(classObj):
+    return classObj.metric(["PercentLackOfCohesion"])['PercentLackOfCohesion'] or 0
 
 # -------------------------
 #       SMELLS
 # -------------------------
 
-def extractSmells(projectPath, outputPath, runName, log):
+def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = True):
     delm = ","
-    includeMetricsInCsv = True
+    #includeMetricsInCsv = True
 
     FEW = 4
     ONE_THIRD = 1/3
     HIGH_METHOD_COMPLEXITY = 10
+    HIGH_LCOM = 73 #0.725
+
+    #for use with PMD style data class methodology
+    HIGH_NOPA = 5
+    VERY_HIGH_NOPA = 3
+    HIGH_WMC = 30
+    VERY_HIGH_WMC = 45
 
     classStatusUpdateInterval = 200
     methodStatusUpdateInterval = 5000
 
-    outputCsvFileClasses = os.path.join(outputPath, runName + "-smells-classses.csv")
+    outputCsvFileClasses = os.path.join(outputPath, runName + "-smells-classes.csv")
     outputCsvFileMethods = os.path.join(outputPath, runName + "-smells-methods.csv")
     outputTxtDirClasses = os.path.join(outputPath, runName + "-smelly-classes")
     outputTxtDirMethods = os.path.join(outputPath, runName + "-smelly-methods")
@@ -128,10 +160,12 @@ def extractSmells(projectPath, outputPath, runName, log):
     allClassLOC = list()
     allClassWMC = list()
     allMethodLOC = list()
+    allMethodPLL = list()
+    allMethodInputs = list()
 
     for aclass in db.ents("Class"):
         if (len(classLib)+1) % classStatusUpdateInterval == 0:
-            print("\t\t" + str(round((len(classLib)/totalClassesCount)*100)) + "% complete" ) 
+            print("\t\t" + str(round((len(classLib)/totalClassesCount)*100)) + "% complete" )
 
         classLongName = aclass.longname()
 
@@ -141,25 +175,32 @@ def extractSmells(projectPath, outputPath, runName, log):
         classMetricLOC = getLOC(aclass)
         classMetricCMC = getCMC(aclass, HIGH_METHOD_COMPLEXITY)
 
+        classMetricTMC = getTMC(aclass)
+        classMetricLMC = getLMC(aclass)
+        classMetricNOPA = getNOPA(aclass)
+        classMetricLCOM = getLCOM(aclass)
+
         allClassWMC.append(classMetricWMC)
         allClassLOC.append(classMetricLOC)
 
         classLib.append({"name": classLongName, "ATFD": classMetricATFD, "WMC": classMetricWMC, "TCC": classMetricTCC,
-            "LOC": classMetricLOC, "CMC": classMetricCMC})
+            "LOC": classMetricLOC, "CMC": classMetricCMC, "TMC": classMetricTMC, "LMC": classMetricLMC, "NOPA": classMetricNOPA, "LCOM": classMetricLCOM})
 
     print("\tCalculating complex metrics for "+str(totalMethodsCount) + " methods...")
 
     for amethod in db.ents("Method ~unresolved ~unknown"):
         if (len(methodLib)+1) % methodStatusUpdateInterval == 0:
-            print("\t\t" + str(round((len(methodLib)/totalMethodsCount)*100)) + "%% complete" ) 
+            print("\t\t" + str(round((len(methodLib)/totalMethodsCount)*100)) + "%% complete" )
 
         methodLongName = amethod.name()
 
         methodMetricLOC = getLOC(amethod)
-
         allMethodLOC.append(methodMetricLOC)
 
-        methodLib.append({"name": methodLongName, "LOC": methodMetricLOC})
+        methodMetricInputs = getInputs(amethod)
+        allMethodInputs.append(methodMetricInputs)
+
+        methodLib.append({"name": methodLongName, "LOC": methodMetricLOC, "inputs": methodMetricInputs})
 
     print("\tCalculating system-wide averages and metrics")
 
@@ -169,21 +210,26 @@ def extractSmells(projectPath, outputPath, runName, log):
     # TODO(performance improvement): Improve such that 1st quartile LOC can be cacluated without storing all
     # observations (see http://www.cs.wustl.edu/~jain/papers/ftp/psqr.pdf) for "Lazy Class"
     firstQuartileClassLOC = np.percentile(allClassLOC, 25) # Get the 1st quartitle
+    meanClassLOC = statistics.mean(allClassLOC)
     meanMethodLoc = statistics.mean(allMethodLOC)
+    meanMethodInputs = statistics.mean(allMethodInputs)
 
     log.write("Class WMC: mean = " + str(meanClassWMC) + ", pstdev = " + str(devClassWMC) + ", VERY_HIGH = " + str(veryHighClassWMC) + "\n")
     log.write("Class LOC: 1st Quartile = " + str(firstQuartileClassLOC) + "\n")
+    log.write("Class LOC: mean = " + str(meanClassLOC) + "\n")
     log.write("Method LOC: mean = " + str(meanMethodLoc) + "\n")
+    log.write("Method Inputs: mean = " + str(meanMethodInputs) + "\n")
+    log.write("M")
 
     print("\tApplying code smell thresholds")
 
     # Apply Class-Level Smells
-    classSmells = {'god': set(), 'lazy': set(), 'complex': set()}
+    classSmells = {'god': set(), 'lazy': set(), 'complex': set(), 'refusedBequest': set(), 'long': set(), 'dataClass': set(), 'featureEnvy': set()}
 
     outputFile = open(outputCsvFileClasses, "w")
-    outputData = delm.join(["Class", "God Class", "Lazy Class", "Complex Class"])
+    outputData = delm.join(["Class", "God Class", "Lazy Class", "Complex Class", "Long Class", "Refused Bequest", "Data Class", "Feature Envy"])
     if includeMetricsInCsv:
-            outputData += delm + delm.join(["Metric: ATFD", "Metric: WMC", "Metric: TCC", "Metric: LOC", "Metric: CMC"])
+            outputData += delm + delm.join(["Metric: ATFD", "Metric: WMC", "Metric: TCC", "Metric: LOC", "Metric: CMC", "Metric: TMC", "Metric: LMC", "Metric: NOPA", "Metric: LCOM (%)"])
     outputFile.write(outputData + "\n")
 
     for aclass in classLib:
@@ -201,40 +247,63 @@ def extractSmells(projectPath, outputPath, runName, log):
         # - CMC (Complex Method Count; number of methods with complexity > HIGH_METHOD_COMPLEXITY) >= 1
         classSmellComplex = (aclass["CMC"] >= 1)
 
+        classSmellLong = (aclass["LOC"] > meanClassLOC)
+
+        classSmellRefusedBequest = (aclass["LMC"] > (.5 * aclass["TMC"])) and (aclass["LMC"] != aclass["TMC"])
+
+        classSmellDataClass = ( (aclass["WMC"] <= HIGH_WMC and aclass["NOPA"] >= HIGH_NOPA) or (aclass["WMC"] <= VERY_HIGH_WMC and aclass["NOPA"] >= VERY_HIGH_NOPA) )
+
+        classSmellFeatureEnvy = (aclass["LCOM"] > HIGH_LCOM)
+
         if classSmellGod:
             classSmells['god'].add(aclass["name"])
         if classSmellLazy:
             classSmells['lazy'].add(aclass["name"])
         if classSmellComplex:
             classSmells['complex'].add(aclass["name"])
+        if classSmellLong:
+            classSmells['long'].add(aclass["name"])
+        if classSmellRefusedBequest:
+            classSmells['refusedBequest'].add(aclass["name"])
+        if classSmellDataClass:
+            classSmells['dataClass'].add(aclass["name"])
+        if classSmellFeatureEnvy:
+            classSmells['featureEnvy'].add(aclass["name"])
 
-        csvLine = delm.join([aclass["name"], str(classSmellGod), str(classSmellLazy), str(classSmellComplex)])
+        csvLine = delm.join([aclass["name"], str(classSmellGod), str(classSmellLazy), str(classSmellComplex), str(classSmellLong), str(classSmellRefusedBequest), str(classSmellDataClass), str(classSmellFeatureEnvy)])
         if includeMetricsInCsv:
-            csvLine += delm + delm.join([str(aclass["ATFD"]), str(aclass["WMC"]), str(aclass["TCC"]), str(aclass["LOC"]), str(aclass["CMC"])])
+            csvLine += delm + delm.join([str(aclass["ATFD"]), str(aclass["WMC"]), str(aclass["TCC"]), str(aclass["LOC"]), str(aclass["CMC"]), str(aclass["LMC"]), str(aclass["TMC"]), str(aclass["NOPA"]), str(aclass["LCOM"])])
         outputFile.write(csvLine + "\n")
 
     outputFile.close()
 
     # Apply Method-Level Smells
-    methodSmells = {'long': set()}
+    methodSmells = {'long': set(), 'lpl': set()}
 
     outputFile = open(outputCsvFileMethods, "w")
-    outputData = delm.join(["Method", "Long Method"])
+    outputData = delm.join(["Method", "Long Method", "Long Parameter List"])
     if includeMetricsInCsv:
-            outputData += delm + delm.join(["Metric: LOC"])
+            outputData += delm + delm.join(["Metric: LOC", "Metric: inputs"])
     outputFile.write(outputData + "\n")
 
     for amethod in methodLib:
         # Long Method
         # - LOC (Lines of Code) > mean of system
-        methodSmellLong = (amethod["LOC"] > meanMethodLoc)
+        # methodSmellLong = (amethod["LOC"] > meanMethodLoc)
+
+        # - LOC (Lines of Code) > 20 - Zadia
+        methodSmellLong = (amethod["LOC"] > 20)
+
+        methodSmellLongParameterList = (amethod["inputs"] > meanMethodInputs)
 
         if methodSmellLong:
             methodSmells['long'].add(amethod["name"])
+        if methodSmellLongParameterList:
+            methodSmells['lpl'].add(amethod["name"])
 
-        csvLine = delm.join([amethod["name"], str(methodSmellLong)])
+        csvLine = delm.join([amethod["name"], str(methodSmellLong), str(methodSmellLongParameterList)])
         if includeMetricsInCsv:
-            csvLine += delm + delm.join([str(amethod["LOC"])])
+            csvLine += delm + delm.join([str(amethod["LOC"]), str(amethod["inputs"])])
         outputFile.write(csvLine + "\n")
 
     outputFile.close()
@@ -281,4 +350,3 @@ if __name__ == '__main__':
                     "default",
                     logFile)
         logFile.close()
-

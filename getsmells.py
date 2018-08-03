@@ -29,6 +29,13 @@ def cli(args):
     outputPath = os.path.dirname(os.path.realpath(__file__))
     if len(args) >= 3:
         outputPath = args[2]
+        if len(args) >= 4:
+            if args[3] == "-m":
+                includeMetricsInCsv = True
+            else:
+                includeMetricsInCsv = False
+        else:
+            includeMetricsInCsv = True
     else:
         outputPath = os.path.join(outputPath, "getsmells-output")
     if not os.path.exists(outputPath):
@@ -53,7 +60,7 @@ def cli(args):
         return
 
     print("Step 2/2: Extracting code smells from metrics on '" + runName + "'")
-    if understandapi.extractSmells(projectPath, outputPath, runName, log) == 1:
+    if understandapi.extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv) == 1:
         log.close()
         return
 
