@@ -17,16 +17,17 @@ bit-ness of your Understand install (developed using Python 3.6 64-bit)
   * [NumPy](https://docs.scipy.org/doc/numpy/index.html): `pip3 install numpy`
 
 ## Usage
-`python3 getsmells.py [sourcePath] [outputPath (optional)]`   
+`python3 getsmells.py [sourcePath] [outputPath (optional)] [no metrics flag (optional)]`   
 
 **Example**   
-`python3 getsmells.py c:/Users/you/path/to/code c:/Users/you/output`   
+`python3 getsmells.py c:/Users/you/path/to/code c:/Users/you/output -nm`   
 
 **Parameters**   
 `sourcePath`: The path to the directory with a single project's code   
 `outputPath`: The directory to output the CSVs with code smells (one for class-level and one for method-level), the debug
  output (log), the Understand Project, the list of classes/methods with each smell (default: create a new subdirectory
- in the current directory)   
+ in the current directory)
+`-nm`: If this flag is used the output csv will not contain the metrics used to determine the code smells. Allows for cleaner csv outputs and a slightly faster runtime.
 
 
 ## Smells
