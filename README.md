@@ -35,8 +35,8 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
  in [On the diffuseness and the impact on maintainability of code smells: a large scale empirical investigation](https://link.springer.com/article/10.1007/s10664-017-9535-z).
 
 **God Class (Class-Level)**
-- ATFD (Access to Foreign Data) > Few
-- WMC (Weighted Method Count) >= Very High
+- ATFD (Access to Foreign Data) > Few 
+- WMC (Weighted Method Count) >= Very High 
 - TCC (Tight Class Cohesion) < 1/3
 
 **Lazy Class (Class-Level)**
@@ -45,8 +45,24 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 **Complex Class (Class-Level)**
 - CMC (Complex Method Count) > 1
 
-**Long Method (Method-Level)**
+**Long Class (Class-Level)**
 - LOC (Lines of Code) > mean of system
+
+**Refused Bequest (Class-Level)**
+- Child Class overrides more than half of its parent class's methods
+
+**Data Class (Class-Level)**
+- WMC (Weighted Method Count) <= High
+- NOPA (Number of Public Methods) >= High
+
+**Feature Envy (Class-Level)**
+- LCOM (Lack of Cohesion of Methods) >= High (72.5%)
+
+**Long Method (Method-Level)**
+- LOC (Lines of Code) > 20
+
+**Long Parameter List (Method-Level)**
+- Inputs > mean of system
 
 ## Files
 `getsmells.py`: "Main" file used to run GetSmells; contains the GetSmells command-line interface   
