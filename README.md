@@ -27,6 +27,7 @@ bit-ness of your Understand install (developed using Python 3.6 64-bit)
 `outputPath`: The directory to output the CSVs with code smells (one for class-level and one for method-level), the debug
  output (log), the Understand Project, the list of classes/methods with each smell (default: create a new subdirectory
  in the current directory)
+ 
  `-nm`: If this flag is used the output csv will not contain the metrics used to determine the code smells. Allows for cleaner csv outputs and a slightly faster runtime.
 
 
