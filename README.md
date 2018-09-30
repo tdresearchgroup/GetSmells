@@ -41,11 +41,28 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 **Lazy Class (Class-Level)**
 - LOC (Lines of Code) < 1st quartile of system
 
+**Long Class (Class-Level)**
+- LOC (Lines of Code) > Mean of system
+
 **Complex Class (Class-Level)**
 - CMC (Complex Method Count) > 1
 
+**Refused Bequest (Class-Level)**
+- LMC (Local Method Count) > 1/2 * TMC (Total Method Count)
+
+**Data Class (Class-Level)**
+- WMC (Weighted Method Count) <= 30 and NOPA (Number of Public Accesses) >= 3 
+  or
+- WMC (Weighted Method Count) <= 45 and NOPA (Number of Public Accesses) >= 5
+
+**Feature Envy (Class-Level)**
+- LCOM (Lack of Cohesion in Methods) > 73% (
+
 **Long Method (Method-Level)**
-- LOC (Lines of Code) > mean of system
+- LOC (Lines of Code) > Mean of system
+
+**Long Parameter List (Method-Level**
+- Inputs > Mean of system
 
 ## Files
 `getsmells.py`: "Main" file used to run GetSmells; contains the GetSmells command-line interface   
