@@ -153,7 +153,7 @@ def extractSmells(projectPath, outputPath, runName, log):
         if (len(methodLib)+1) % methodStatusUpdateInterval == 0:
             print("\t\t" + str(round((len(methodLib)/totalMethodsCount)*100)) + "%% complete" ) 
 
-        methodLongName = amethod.name()
+        methodLongName = amethod.longname()
 
         methodMetricLOC = getLOC(amethod)
 
