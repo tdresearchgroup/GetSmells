@@ -2,3 +2,11 @@
 __pycache__
 .DS_Store
 .vscode
+rnn/combined_project/
+rnn/class_dict/
+rnn/all_sources_words/
+rnn/class_output/
+rnn/data/
+rnn/model_with_stat.py
+rnn/__pycache__/
+rnn/venv/

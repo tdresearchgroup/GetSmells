@@ -1,0 +1,6 @@
+Cython==0.29.6
+dyNET==2.1
+nltk==3.4
+numpy==1.16.2
+singledispatch==3.4.0.3
+six==1.12.0
