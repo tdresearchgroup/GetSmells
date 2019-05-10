@@ -31,7 +31,6 @@ class_dict -- dictionary of class and class source code
 
 all_sources_words -- list of all words in the project
 
-Move the "-smells-classes.csv" and "-flattened_src" directories into the ```rnn/data/``` directory
 ```
 # activate environment - use conda install if on Windows
 source env/bin/activate
@@ -40,7 +39,6 @@ source env/bin/activate
 pip install -r requirments.txt
 ```
 
-Use the project_name_with_version_list.txt to make a list of projects to preprocess and edit the preprocessing.py and combine_all_classes.py so that ```PROJECT_NAMES``` = [list of projects]
 
 Change the ```OUTPUT_NAME``` for ```combine_all_classes.py``` and edit the ```convert_to_sequence_and_labels.py``` and ```balance_data.py``` accordingly
 ```

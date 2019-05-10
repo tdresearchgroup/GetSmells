@@ -45,7 +45,6 @@ progress_count = 0
 for class_name in class_dict.keys():
 	if (progress_count % 100 == 0):
 		print("Current class: {}".format(progress_count))
-		progress_count = 0
 		
 	# convert the sources to 
 	original_class_src = class_dict[class_name]

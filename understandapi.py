@@ -106,7 +106,7 @@ def extractSmells(projectPath, outputPath, runName, log):
     classStatusUpdateInterval = 200
     methodStatusUpdateInterval = 5000
 
-    outputCsvFileClasses = os.path.join(outputPath, runName + "-smells-classses.csv")
+    outputCsvFileClasses = os.path.join(outputPath, runName + "-smells-classes.csv")
     outputCsvFileMethods = os.path.join(outputPath, runName + "-smells-methods.csv")
     outputTxtDirClasses = os.path.join(outputPath, runName + "-smelly-classes")
     outputTxtDirMethods = os.path.join(outputPath, runName + "-smelly-methods")
