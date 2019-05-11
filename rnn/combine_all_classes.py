@@ -1,6 +1,7 @@
 import pickle
+import sys
 
-
+# get name of project names with their versions
 project_names_list = open('project_name_with_version_list.txt', 'r')
 PROJECT_NAMES = project_names_list.read().split(', \\\n')
 del PROJECT_NAMES[-1] # remove the empty string last element
@@ -8,6 +9,19 @@ del PROJECT_NAMES[-1] # remove the empty string last element
 
 
 OUTPUT_FILENAME = "combined_project_4"
+if (len(sys.argv) == 1):
+	print("Using default project name for output: {}".format(OUTPUT_FILENAME))
+elif (len(sys.argv) == 2):
+	OUTPUT_FILENAME = str(sys.argv[1])
+	print("Project name for output: {}".format(OUTPUT_FILENAME))
+else:
+	print("Usage: python {} [OUTPUT_FILENAME]".format(sys.argv[0]))
+	sys.exit()
+
+# write OUTPUT_FILENAME into file
+with open('OUTPUT_FILENAME.txt', 'w') as file:
+	file.write(OUTPUT_FILENAME)
+
 
 all_project_class_labels = {}
 

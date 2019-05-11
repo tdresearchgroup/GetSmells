@@ -4,6 +4,8 @@ import sys
 import os
 import platform
 
+OUTPUT_DIR_NAME = "getsmells-output"
+
 def printCliHelp():
     print("Usage:\npython3 getsmells.py [sourcePath] [outputPath (optional)]\n")
     print("sourcePath: The path to the directory with a single project's code")
@@ -18,6 +20,7 @@ def cli(args):
         return
 
     sourcePath = args[1]
+    print("Source path: {}".format(sourcePath))
 
     if not os.path.isdir(sourcePath):
         print("Error: The specified source path either does not exist or is not a directory")
@@ -30,7 +33,7 @@ def cli(args):
     if len(args) >= 3:
         outputPath = args[2]
     else:
-        outputPath = os.path.join(outputPath, "getsmells-output")
+        outputPath = os.path.join(outputPath, OUTPUT_DIR_NAME)
     if not os.path.exists(outputPath):
         os.makedirs(outputPath)
 

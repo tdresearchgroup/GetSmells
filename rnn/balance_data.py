@@ -1,14 +1,16 @@
 import pickle
 import nltk
 import random
+import os
+from convert_to_sequence_and_labels import CLASSES_OUTPUT_FILENAME, CLASS_DICT_FILENAME, ALL_SOURCES_WORDS_FILENAME
 
-PROJECT_NAME = 'combined_project_4'
+with open('OUTPUT_FILENAME.txt', 'r') as file:
+	PROJECT_NAME = file.read()
 
 with open(PROJECT_NAME + "_sequences", 'rb') as fp:
 	sequences = pickle.load(fp)
 with open(PROJECT_NAME + "_labels", 'rb') as fp:
 	labels = pickle.load(fp)
-
 
 
 total_number_of_classes_without_zeros = 0
@@ -47,3 +49,8 @@ with open(PROJECT_NAME + "_balanced_sequences", 'wb') as fp:
 	pickle.dump(even_sequences, fp)
 with open(PROJECT_NAME + "_balanced_labels", 'wb') as fp:
 	pickle.dump(even_labels, fp)
+
+# remove preprocessing files for combined
+os.remove(CLASSES_OUTPUT_FILENAME)
+os.remove(CLASS_DICT_FILENAME)
+os.remove(ALL_SOURCES_WORDS_FILENAME)

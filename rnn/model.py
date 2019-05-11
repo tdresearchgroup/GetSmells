@@ -12,8 +12,9 @@ from datetime import datetime
 import random
 import pickle
 
-PROJECT_NAME = "combined_project_4"
-
+with open('OUTPUT_FILENAME.txt', 'r') as file:
+	PROJECT_NAME = file.read()
+	
 vocabulary_size = 8000
 UNKNOWN_TOKEN = "UNKNOWN_TOKEN"
 
