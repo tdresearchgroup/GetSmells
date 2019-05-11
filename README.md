@@ -1,23 +1,23 @@
 # Model
 
 LSTM Acceptor:
--Vocabulary size of 8000
--Embedding size of 1000
--Supervision signal:
-	1. Sigmoid to normalize
-	2. Cross entropy loss (binary classification)
+ * Vocabulary size of 8000
+ * Embedding size of 1000
+ * Supervision signal:
+ 	> 1. Sigmoid to normalize <br />
+	> 2. Cross entropy loss (binary classification) <br />
 
-Possible improvements and extensions:
-	RNN/CNN encoder before acceptor to gain 'context' (allows context-required code smell detection, e.g. 'Refused Bequest')
-	Different code smells classes (there are seven possible labels given by getsmells.py, e.g. 'God', 'Lazy', 'Complex',...)
-	Different embedding sizes (compare accuracy vs efficiency)
+Possible improvement(s) and extension(s):
+ * RNN/CNN encoder before acceptor to gain 'context' (allows context-required code smell detection, e.g. 'Refused Bequest')
+ * Different code smells classes (there are seven possible labels given by getsmells.py, e.g. 'God', 'Lazy', 'Complex',...)
+ * Different embedding sizes (compare accuracy vs efficiency)
 
 # Training/Testing
 
 70-30 training-testing split
 
-Possible improvement:
-	Completely separate sets of preprocessed files for training vs testing
+Possible improvement(s) and extension(s):
+ * Completely separate sets of preprocessed files for training vs testing
 
 # Setup Instructions
 
