@@ -140,7 +140,9 @@ python convert_to_sequence_and_labels.py # convert to sequence and labels
 python balance_data.py # randomly take 50-50 positive-negative sample of the full sequence to use as the training/testing set
 ```
 
-## Running the model
+## Running the model and the Results
 ```
 python model.py
 ```
+
+The results will be stored in the ```[OUTPUT_NAME]_test_set_results.csv``` file. This file has the actual predictions for each of the examples in the test set, as well as the recall, precision, and F1-score. 
