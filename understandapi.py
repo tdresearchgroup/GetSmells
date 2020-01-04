@@ -85,11 +85,19 @@ def getTCC(classObj):
     else:
         return (numberOfShares / numberOfPairs) * 1.0
 
+def getNOAV(methodObj):
+    lenOfParameters = len(methodObj.ents("Define", "Parameter"))
+    lenOfVariables = len(methodObj.ents("Use, Set", "Variable ~unresolved ~unknown"))
+    return lenOfParameters + lenOfVariables
+
 def getCM(methodObj):
     return len(methodObj.refs("Callby", "Method", True))
 
 def getCC(methodObj):
     return len({x.ent().ref("Definein", "Class").ent() for x in methodObj.refs("Callby", "Method", True)})
+
+def getMAXNESTING(methodObj):
+    return methodObj.metric(["MaxNesting"])["MaxNesting"] or 0
 
 # LOC (Lines of Code)
 # Class- or method-level metric
@@ -206,6 +214,10 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
         methodMetricInputs = getInputs(amethod)
         allMethodInputs.append(methodMetricInputs)
 
+        methodMetricNOAV = getNOAV(amethod)
+        methodMetricCYCLO = getCyclomatic(amethod)
+        methodMetricMAXNESTING = getMAXNESTING(amethod)
+
         methodMetricCM = getCM(amethod)
         methodMetricCC = getCC(amethod)
 
@@ -213,7 +225,10 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
                           "LOC": methodMetricLOC,
                           "inputs": methodMetricInputs,
                           "CM": methodMetricCM,
-                          "CC": methodMetricCC})
+                          "CC": methodMetricCC,
+                          "NOAV": methodMetricNOAV,
+                          "CYCLO": methodMetricCYCLO,
+                          "MAXNESTING": methodMetricMAXNESTING})
 
     print("\tCalculating system-wide averages and metrics")
 
@@ -242,7 +257,7 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
     outputFile = open(outputCsvFileClasses, "w")
     outputData = delm.join(["Class", "God Class", "Lazy Class", "Complex Class", "Long Class", "Refused Bequest", "Data Class", "Feature Envy"])
     if includeMetricsInCsv:
-            outputData += delm + delm.join(["Metric: ATFD", "Metric: WMC", "Metric: TCC", "Metric: LOC", "Metric: CMC", "Metric: TMC", "Metric: LMC", "Metric: NOPA", "Metric: LCOM (%)"])
+        outputData += delm + delm.join(["Metric: ATFD", "Metric: WMC", "Metric: TCC", "Metric: LOC", "Metric: CMC", "Metric: TMC", "Metric: LMC", "Metric: NOPA", "Metric: LCOM (%)"])
     outputFile.write(outputData + "\n")
 
     for aclass in classLib:
@@ -291,12 +306,15 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
     outputFile.close()
 
     # Apply Method-Level Smells
-    methodSmells = {'long': set(), 'lpl': set(), 'shotgunSurgery': set()}
+    methodSmells = {'long': set(),
+                    'lpl': set(),
+                    'shotgunSurgery': set(),
+                    'brainMethod': set()}
 
     outputFile = open(outputCsvFileMethods, "w")
     outputData = delm.join(["Method", "Long Method", "Long Parameter List"])
     if includeMetricsInCsv:
-            outputData += delm + delm.join(["Metric: LOC", "Metric: inputs"])
+        outputData += delm + delm.join(["Metric: LOC", "Metric: inputs"])
     outputFile.write(outputData + "\n")
 
     for amethod in methodLib:
@@ -314,12 +332,22 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
         # - CC (Changing Classes) > 5
         methodSmellShotGunSurgery = (amethod["CM"] > 10 and amethod["CC"] > 5)
 
+        # Brain Method
+        # - LOC (Line of Code) > 65
+        # - CYCLO(Cyclomatic Complexity) / LOC(Line of Code) >= 0.24
+        # - MAXNESTING(Maximum Nesting Level) >= 5
+        # - NOAV(Number of Accessed Variables) > 8
+        methodSmellBrainMethod = (amethod["LOC"] > 65 and amethod["CYCLO"] >= 0.24 and
+                                  amethod["MAXNESTING"] >= 5 and amethod["NOAV"] > 8)
+
         if methodSmellLong:
             methodSmells['long'].add(amethod["name"])
         if methodSmellLongParameterList:
             methodSmells['lpl'].add(amethod["name"])
         if methodSmellShotGunSurgery:
             methodSmells['shotgunSurgery'].add(amethod["name"])
+        if methodSmellBrainMethod:
+            methodSmells['brainMethod'].add(amethod["name"])
 
         csvLine = delm.join([amethod["name"], str(methodSmellLong), str(methodSmellLongParameterList)])
         if includeMetricsInCsv:
@@ -366,7 +394,7 @@ if __name__ == '__main__':
     else:
         logFile = open("/Users/charles/Documents/DIS/getsmells-test-output/understandapi-log.txt", "w+")
         extractSmells("/Users/charles/Documents/DIS/understandproject.udb",
-                    "/Users/charles/Documents/DIS/getsmells-test-output/",
-                    "default",
-                    logFile)
+                      "/Users/charles/Documents/DIS/getsmells-test-output/",
+                      "default",
+                      logFile)
         logFile.close()
