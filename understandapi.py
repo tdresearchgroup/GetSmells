@@ -198,7 +198,7 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
         allClassLOC.append(classMetricLOC)
 
         classLib[classLongName] = {"className": classLongName.split('.')[-1],
-                                   "countOfBrainMethod": 0,
+                                   "numberOfBrainMethod": 0,
                                    "ATFD": classMetricATFD,
                                    "WMC": classMetricWMC,
                                    "TCC": classMetricTCC,
@@ -215,7 +215,7 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
         if (len(methodLib)+1) % methodStatusUpdateInterval == 0:
             print("\t\t" + str(round((len(methodLib)/totalMethodsCount)*100)) + "%% complete" )
 
-        methodLongName = amethod.name()
+        methodLongName = amethod.longname()
 
         methodMetricLOC = getLOC(amethod)
         allMethodLOC.append(methodMetricLOC)
@@ -239,6 +239,9 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
                           "CYCLO": methodMetricCYCLO,
                           "MAXNESTING": methodMetricMAXNESTING})
 
+        classLongName = '.'.join(amethod.longname().split('.')[:-1])
+        classLib[classLongName]["numberOfBrainMethod"] += 1
+
     print("\tCalculating system-wide averages and metrics")
 
     meanClassWMC = statistics.mean(allClassWMC)
@@ -261,7 +264,14 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
     print("\tApplying code smell thresholds")
 
     # Apply Class-Level Smells
-    classSmells = {'god': set(), 'lazy': set(), 'complex': set(), 'refusedBequest': set(), 'long': set(), 'dataClass': set(), 'featureEnvy': set()}
+    classSmells = {'god': set(),
+                   'lazy': set(),
+                   'complex': set(),
+                   'refusedBequest': set(),
+                   'long': set(),
+                   'dataClass': set(),
+                   'featureEnvy': set(),
+                   'brainClass': set()}
 
     outputFile = open(outputCsvFileClasses, "w")
     outputData = delm.join(["Class", "God Class", "Lazy Class", "Complex Class", "Long Class", "Refused Bequest", "Data Class", "Feature Envy"])
@@ -292,6 +302,12 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
 
         classSmellFeatureEnvy = (metrics["LCOM"] > HIGH_LCOM)
 
+        classSmellBrainClass = (not classSmellGod and
+                                metrics["WMC"] >= 47 and
+                                metrics["TCC"] < 0.5 and
+                                ((metrics["numberOfBrainMethod"] > 1 and metrics["LOC"] >= 197) or
+                                 (metrics["numberOfBrainMethod"] == 1 and metrics["LOC"] >= 2*197 and metrics["WMC"] >= 2*47)))
+
         if classSmellGod:
             classSmells['god'].add(longName)
         if classSmellLazy:
@@ -306,8 +322,10 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
             classSmells['datmetrics'].add(longName)
         if classSmellFeatureEnvy:
             classSmells['featureEnvy'].add(longName)
+        if classSmellBrainClass:
+            classSmells['brainClass'].add(longName)
 
-        csvLine = delm.join([longName, str(classSmellGod), str(classSmellLazy), str(classSmellComplex), str(classSmellLong), str(classSmellRefusedBequest), str(classSmellDatmetrics), str(classSmellFeatureEnvy)])
+        csvLine = delm.join([longName, str(classSmellGod), str(classSmellLazy), str(classSmellComplex), str(classSmellLong), str(classSmellRefusedBequest), str(classSmellDatmetrics), str(classSmellFeatureEnvy), str(classSmellBrainClass)])
         if includeMetricsInCsv:
             csvLine += delm + delm.join([str(metrics["ATFD"]), str(metrics["WMC"]), str(metrics["TCC"]), str(metrics["LOC"]), str(metrics["CMC"]), str(metrics["LMC"]), str(metrics["TMC"]), str(metrics["NOPA"]), str(metrics["LCOM"])])
         outputFile.write(csvLine + "\n")
