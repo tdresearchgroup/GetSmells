@@ -168,7 +168,7 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
 
     print("\tCalculating complex metrics for "+str(totalClassesCount) + " classes...")
 
-    classLib = list()
+    classLib = {}
     methodLib = list()
 
     allClassLOC = list()
@@ -197,8 +197,17 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
         allClassWMC.append(classMetricWMC)
         allClassLOC.append(classMetricLOC)
 
-        classLib.append({"name": classLongName, "ATFD": classMetricATFD, "WMC": classMetricWMC, "TCC": classMetricTCC,
-            "LOC": classMetricLOC, "CMC": classMetricCMC, "TMC": classMetricTMC, "LMC": classMetricLMC, "NOPA": classMetricNOPA, "LCOM": classMetricLCOM})
+        classLib[classLongName] = {"className": classLongName.split('.')[-1],
+                                   "countOfBrainMethod": 0,
+                                   "ATFD": classMetricATFD,
+                                   "WMC": classMetricWMC,
+                                   "TCC": classMetricTCC,
+                                   "LOC": classMetricLOC,
+                                   "CMC": classMetricCMC,
+                                   "TMC": classMetricTMC,
+                                   "LMC": classMetricLMC,
+                                   "NOPA": classMetricNOPA,
+                                   "LCOM": classMetricLCOM}
 
     print("\tCalculating complex metrics for "+str(totalMethodsCount) + " methods...")
 
@@ -260,47 +269,47 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
         outputData += delm + delm.join(["Metric: ATFD", "Metric: WMC", "Metric: TCC", "Metric: LOC", "Metric: CMC", "Metric: TMC", "Metric: LMC", "Metric: NOPA", "Metric: LCOM (%)"])
     outputFile.write(outputData + "\n")
 
-    for aclass in classLib:
+    for longName, metrics in classLib.items():
         # God Class
         # - ATFD (Access to Foreign Data) > Few
         # - WMC (Weighted Method Count) >= Very High
         # - TCC (Tight Class Cohesion) < 1/3
-        classSmellGod = (aclass["ATFD"] > FEW) and (aclass["WMC"] >= veryHighClassWMC) and (aclass["TCC"] < ONE_THIRD)
+        classSmellGod = (metrics["ATFD"] > FEW) and (metrics["WMC"] >= veryHighClassWMC) and (metrics["TCC"] < ONE_THIRD)
 
         # Lazy Class
         # - LOC (Lines of Code) < 1st quartile of system
-        classSmellLazy = (aclass["LOC"] < firstQuartileClassLOC)
+        classSmellLazy = (metrics["LOC"] < firstQuartileClassLOC)
 
         # Complex Class
         # - CMC (Complex Method Count; number of methods with complexity > HIGH_METHOD_COMPLEXITY) >= 1
-        classSmellComplex = (aclass["CMC"] >= 1)
+        classSmellComplex = (metrics["CMC"] >= 1)
 
-        classSmellLong = (aclass["LOC"] > meanClassLOC)
+        classSmellLong = (metrics["LOC"] > meanClassLOC)
 
-        classSmellRefusedBequest = (aclass["LMC"] > (.5 * aclass["TMC"])) and (aclass["LMC"] != aclass["TMC"])
+        classSmellRefusedBequest = (metrics["LMC"] > (.5 * metrics["TMC"])) and (metrics["LMC"] != metrics["TMC"])
 
-        classSmellDataClass = ( (aclass["WMC"] <= HIGH_WMC and aclass["NOPA"] >= HIGH_NOPA) or (aclass["WMC"] <= VERY_HIGH_WMC and aclass["NOPA"] >= VERY_HIGH_NOPA) )
+        classSmellDatmetrics = ( (metrics["WMC"] <= HIGH_WMC and metrics["NOPA"] >= HIGH_NOPA) or (metrics["WMC"] <= VERY_HIGH_WMC and metrics["NOPA"] >= VERY_HIGH_NOPA) )
 
-        classSmellFeatureEnvy = (aclass["LCOM"] > HIGH_LCOM)
+        classSmellFeatureEnvy = (metrics["LCOM"] > HIGH_LCOM)
 
         if classSmellGod:
-            classSmells['god'].add(aclass["name"])
+            classSmells['god'].add(longName)
         if classSmellLazy:
-            classSmells['lazy'].add(aclass["name"])
+            classSmells['lazy'].add(longName)
         if classSmellComplex:
-            classSmells['complex'].add(aclass["name"])
+            classSmells['complex'].add(longName)
         if classSmellLong:
-            classSmells['long'].add(aclass["name"])
+            classSmells['long'].add(longName)
         if classSmellRefusedBequest:
-            classSmells['refusedBequest'].add(aclass["name"])
-        if classSmellDataClass:
-            classSmells['dataClass'].add(aclass["name"])
+            classSmells['refusedBequest'].add(longName)
+        if classSmellDatmetrics:
+            classSmells['datmetrics'].add(longName)
         if classSmellFeatureEnvy:
-            classSmells['featureEnvy'].add(aclass["name"])
+            classSmells['featureEnvy'].add(longName)
 
-        csvLine = delm.join([aclass["name"], str(classSmellGod), str(classSmellLazy), str(classSmellComplex), str(classSmellLong), str(classSmellRefusedBequest), str(classSmellDataClass), str(classSmellFeatureEnvy)])
+        csvLine = delm.join([longName, str(classSmellGod), str(classSmellLazy), str(classSmellComplex), str(classSmellLong), str(classSmellRefusedBequest), str(classSmellDatmetrics), str(classSmellFeatureEnvy)])
         if includeMetricsInCsv:
-            csvLine += delm + delm.join([str(aclass["ATFD"]), str(aclass["WMC"]), str(aclass["TCC"]), str(aclass["LOC"]), str(aclass["CMC"]), str(aclass["LMC"]), str(aclass["TMC"]), str(aclass["NOPA"]), str(aclass["LCOM"])])
+            csvLine += delm + delm.join([str(metrics["ATFD"]), str(metrics["WMC"]), str(metrics["TCC"]), str(metrics["LOC"]), str(metrics["CMC"]), str(metrics["LMC"]), str(metrics["TMC"]), str(metrics["NOPA"]), str(metrics["LCOM"])])
         outputFile.write(csvLine + "\n")
 
     outputFile.close()
