@@ -85,6 +85,12 @@ def getTCC(classObj):
     else:
         return (numberOfShares / numberOfPairs) * 1.0
 
+def getCM(methodObj):
+    return len(methodObj.refs("Callby", "Method", True))
+
+def getCC(methodObj):
+    return len({x.ent().ref("Definein", "Class").ent() for x in methodObj.refs("Callby", "Method", True)})
+
 # LOC (Lines of Code)
 # Class- or method-level metric
 def getLOC(classOrMethodObj):
@@ -200,7 +206,14 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
         methodMetricInputs = getInputs(amethod)
         allMethodInputs.append(methodMetricInputs)
 
-        methodLib.append({"name": methodLongName, "LOC": methodMetricLOC, "inputs": methodMetricInputs})
+        methodMetricCM = getCM(amethod)
+        methodMetricCC = getCC(amethod)
+
+        methodLib.append({"name": methodLongName,
+                          "LOC": methodMetricLOC,
+                          "inputs": methodMetricInputs,
+                          "CM": methodMetricCM,
+                          "CC": methodMetricCC})
 
     print("\tCalculating system-wide averages and metrics")
 
@@ -278,7 +291,7 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
     outputFile.close()
 
     # Apply Method-Level Smells
-    methodSmells = {'long': set(), 'lpl': set()}
+    methodSmells = {'long': set(), 'lpl': set(), 'shotgunSurgery': set()}
 
     outputFile = open(outputCsvFileMethods, "w")
     outputData = delm.join(["Method", "Long Method", "Long Parameter List"])
@@ -296,10 +309,17 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
 
         methodSmellLongParameterList = (amethod["inputs"] > meanMethodInputs)
 
+        # Shotgun Surgery
+        # - CM (Changing Methods) > 10
+        # - CC (Changing Classes) > 5
+        methodSmellShotGunSurgery = (amethod["CM"] > 10 and amethod["CC"] > 5)
+
         if methodSmellLong:
             methodSmells['long'].add(amethod["name"])
         if methodSmellLongParameterList:
             methodSmells['lpl'].add(amethod["name"])
+        if methodSmellShotGunSurgery:
+            methodSmells['shotgunSurgery'].add(amethod["name"])
 
         csvLine = delm.join([amethod["name"], str(methodSmellLong), str(methodSmellLongParameterList)])
         if includeMetricsInCsv:
@@ -326,7 +346,7 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
         for methodName in methods:
             outputFile.write(methodName + "\n")
         outputFile.close()
-        summaryData += "\n\t\t" + smellName +"  = " + str(len(methods))
+        summaryData += "\n\t\t" + smellName +" = " + str(len(methods))
 
     log.write("\n" + summaryData)
     print(summaryData + "\n")

@@ -27,6 +27,7 @@ def cli(args):
     runName = os.path.split(os.path.split(sourcePath)[0])[1]
 
     outputPath = os.path.dirname(os.path.realpath(__file__))
+    includeMetricsInCsv = True
     if len(args) >= 3:
         outputPath = args[2]
         if len(args) >= 4:
