@@ -162,9 +162,11 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
         os.makedirs(outputTxtDirMethods)
 
     db = understand.open(projectPath)
+    classEnts = db.ents("Class ~Unresolved ~Unknown")
+    methodEnts = db.ents("Method ~Unresolved ~Unknown")
 
-    totalClassesCount = len(db.ents("Class"))
-    totalMethodsCount = len(db.ents("Method"))
+    totalClassesCount = len(classEnts)
+    totalMethodsCount = len(methodEnts)
 
     print("\tCalculating complex metrics for "+str(totalClassesCount) + " classes...")
 
@@ -177,7 +179,7 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
     allMethodPLL = list()
     allMethodInputs = list()
 
-    for aclass in db.ents("Class"):
+    for aclass in classEnts:
         if (len(classLib)+1) % classStatusUpdateInterval == 0:
             print("\t\t" + str(round((len(classLib)/totalClassesCount)*100)) + "% complete" )
 
@@ -211,7 +213,7 @@ def extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv = T
 
     print("\tCalculating complex metrics for "+str(totalMethodsCount) + " methods...")
 
-    for amethod in db.ents("Method ~unresolved ~unknown"):
+    for amethod in methodEnts:
         if (len(methodLib)+1) % methodStatusUpdateInterval == 0:
             print("\t\t" + str(round((len(methodLib)/totalMethodsCount)*100)) + "%% complete" )
 
