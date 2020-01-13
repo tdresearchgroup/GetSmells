@@ -12,6 +12,7 @@ class ClassLevelMetricsUtil(MetricsUtil):
     def generateMetrics(self):
         classLib = {}
         totalClassesCount = len(self.classEnts)
+        print("\tCalculating complex metrics for", totalClassesCount, "classes...")
 
         for classEnt in self.classEnts:
             if (len(classLib)+1) % CLASS_STATUS_UPDATE_INTERVAL == 0:
@@ -19,17 +20,17 @@ class ClassLevelMetricsUtil(MetricsUtil):
 
             classLongName = classEnt.longname()
 
-            classLib[classLongName] = {"className": classLongName.split('.')[-1],
-                                       "numberOfBrainMethod": 0,
+            classLib[classLongName] = {"numberOfBrainMethod": 0,
                                        "ATFD": self.__getATFD(classEnt),
                                        "WMC": self.__getWMC(classEnt),
                                        "TCC": self.__getTCC(classEnt),
-                                       "LOC": self.__getLOC(classEnt),
+                                       "LOC": self._getLOC(classEnt),
                                        "CMC": self.__getCMC(classEnt, HIGH_METHOD_COMPLEXITY),
                                        "TMC": self.__getTMC(classEnt),
                                        "LMC": self.__getLMC(classEnt),
                                        "NOPA": self.__getNOPA(classEnt),
                                        "LCOM": self.__getLCOM(classEnt)}
+        return classLib
 
     # ATFD (Access to Foreign Data)
     # Class-Level Metric
@@ -95,7 +96,7 @@ class ClassLevelMetricsUtil(MetricsUtil):
     def __getCMC(self, classObj, complexityThreshold):
         count = 0
         for amethod in classObj.ents("Define", "Method"):
-            if self.__getCyclomatic(amethod) > complexityThreshold:
+            if self._getCyclomatic(amethod) > complexityThreshold:
                 count += 1
         return count
 

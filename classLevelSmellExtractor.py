@@ -1,4 +1,5 @@
 from statisticUtil import getQuartile, getMean, getCumulativeZ
+from classLevelMetricsUtil import ClassLevelMetricsUtil
 GOD_CLASS_AFTD_FEW = 4
 ONE_THIRD = 1/3
 HIGH_LCOM = 73 #0.725
@@ -11,42 +12,31 @@ VERY_HIGH_WMC = 45
 
 
 class ClassLevelSmellExtractor:
-    def __init__(self, metrics):
-        self.metrics = metrics
+    def __init__(self, classEnts):
+        self.__classMetrics = ClassLevelMetricsUtil(classEnts).generateMetrics()
 
     def getSmells(self):
-        classSmells = {'god': set(),
-                       'lazy': set(),
-                       'complex': set(),
-                       'long': set(),
-                       'refusedBequest': set(),
-                       'dataClass': set(),
-                       'featureEnvy': set(),
-                       'brainClass': set()}
+        classSmells = {}
+        for longName, metrics in self.__classMetrics.items():
+            classSmells[longName] = {"God_Class": self.isGodClass(metrics),
+                                     "Lazy_Class": self.isLazyClass(metrics),
+                                     "Complex_Class": self.isComplexClass(metrics),
+                                     "Long_Class": self.isLongClass(metrics),
+                                     "Refused_Request": self.isRefusedBequest(metrics),
+                                     "Data_Class": self.isDataClass(metrics),
+                                     "Feature_Envy": self.isFeatureEnvy(metrics),
+                                     "Brain_Class": self.isBrainClass(metrics)}
 
-        for longName, metrics in self.metrics.items():
-            if self.isGodClass(metrics):
-                classSmells['god'].add(longName)
-            if self.isLazyClass(metrics):
-                classSmells['lazy'].add(longName)
-            if self.isComplexClass(metrics):
-                classSmells['complex'].add(longName)
-            if self.isLongClass(metrics):
-                classSmells['long'].add(longName)
-            if self.isRefusedBequest(metrics):
-                classSmells['refusedBequest'].add(longName)
-            if self.isDataClass(metrics):
-                classSmells['dataClass'].add(longName)
-            if self.isFeatureEnvy(metrics):
-                classSmells['featureEnvy'].add(longName)
-            if self.isBrainClass(metrics):
-                classSmells['brainClass'].add(longName)
+        return classSmells
 
-    def getMetricDistribution(self, metrics, metricName):
-        return [x[metricName] for x in metrics.values()]
+    def getClassMetrics(self):
+        return self.__classMetrics
+
+    def getMetricDistribution(self, metricName):
+        return [x[metricName] for x in self.__classMetrics.values()]
 
     def isGodClass(self, metrics):
-        dataListWMC = self.getMetricDistribution(metrics, "WMC")
+        dataListWMC = self.getMetricDistribution("WMC")
         veryHigh = getCumulativeZ(dataListWMC, 1.5)
 
         return metrics["ATFD"] > GOD_CLASS_AFTD_FEW and \
@@ -56,7 +46,7 @@ class ClassLevelSmellExtractor:
     def isLazyClass(self, metrics):
         # Lazy Class
         # - LOC (Lines of Code) < 1st quartile of system
-        dataListLOC = self.getMetricDistribution(metrics, "LOC")
+        dataListLOC = self.getMetricDistribution("LOC")
         firstQuatileLOC = getQuartile(dataListLOC, 1)
         return metrics["LOC"] < firstQuatileLOC
 
@@ -65,7 +55,7 @@ class ClassLevelSmellExtractor:
         return metrics["CMC"] >= 1
 
     def isLongClass(self, metrics):
-        dataListLOC = self.getMetricDistribution(metrics, "LOC")
+        dataListLOC = self.getMetricDistribution("LOC")
         meanLOC = getMean(dataListLOC)
         return metrics["LOC"] > meanLOC
 
