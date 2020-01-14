@@ -1,14 +1,9 @@
 import sys
 import platform
-import statistics
 import os
-import numpy as np
 import csv
-from packageSmellExtractor import PackageSmellUtil
-from methodLevelMetricsUtil import MethodLevelMetricsUtil
-from classLevelMetricsUtil import ClassLevelMetricsUtil
-from methodLevelSmellExtractor import MethodLevelSmellExtractor
-from classLevelSmellExtractor import ClassLevelSmellExtractor
+from src.methodLevel.methodLevelSmellExtractor import MethodLevelSmellExtractor
+from src.classLevel.classLevelSmellExtractor import ClassLevelSmellExtractor
 
 if platform.system() == "Windows":
     sys.path.append('C:/Program Files/SciTools/bin/pc-win64/Python')

@@ -1,5 +1,5 @@
-from statisticUtil import getMean
-from methodLevelMetricsUtil import MethodLevelMetricsUtil
+from src.common.statisticUtil import getMean
+from src.methodLevel.methodLevelMetricsUtil import MethodLevelMetricsUtil
 
 
 class MethodLevelSmellExtractor:

@@ -1,6 +1,6 @@
-from statisticUtil import getQuartile, getMean, getCumulativeZ, getMedian
-from classLevelMetricsUtil import ClassLevelMetricsUtil
-from dfs import getCyclicVertex
+from src.common.statisticUtil import getQuartile, getMean, getCumulativeZ, getMedian
+from src.classLevel.classLevelMetricsUtil import ClassLevelMetricsUtil
+from src.common.dfs import getCyclicVertex
 GOD_CLASS_AFTD_FEW = 4
 ONE_THIRD = 1/3
 HIGH_LCOM = 73 #0.725

@@ -1,4 +1,4 @@
-from dfs import getCyclicVertex
+from src.common.dfs import getCyclicVertex
 
 
 class PackageSmellUtil:

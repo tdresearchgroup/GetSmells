@@ -1,4 +1,4 @@
-from metricsUtil import MetricsUtil
+from src.common.metricsUtil import MetricsUtil
 
 METHOD_STATUS_UPDATE_INTERVAL = 5000
 

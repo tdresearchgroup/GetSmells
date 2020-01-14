@@ -1,4 +1,4 @@
-from metricsUtil import MetricsUtil
+from src.common.metricsUtil import MetricsUtil
 
 CLASS_STATUS_UPDATE_INTERVAL = 200
 HIGH_METHOD_COMPLEXITY = 10
