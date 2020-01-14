@@ -29,8 +29,16 @@ class ClassLevelMetricsUtil(MetricsUtil):
                                        "TMC": self.__getTMC(classEnt),
                                        "LMC": self.__getLMC(classEnt),
                                        "NOPA": self.__getNOPA(classEnt),
-                                       "LCOM": self.__getLCOM(classEnt)}
+                                       "LCOM": self.__getLCOM(classEnt),
+                                       "Hub_In": self.__getHubIngoing(classEnt),
+                                       "Hub_Out": self.__getHubOutgoing(classEnt)}
         return classLib
+
+    def __getHubIngoing(self, classEnt):
+        return len({x for x in classEnt.dependsby().keys()})
+
+    def __getHubOutgoing(self, classEnt):
+        return len({x for x in classEnt.depends().keys()})
 
     # ATFD (Access to Foreign Data)
     # Class-Level Metric

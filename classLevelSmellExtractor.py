@@ -1,5 +1,6 @@
-from statisticUtil import getQuartile, getMean, getCumulativeZ
+from statisticUtil import getQuartile, getMean, getCumulativeZ, getMedian
 from classLevelMetricsUtil import ClassLevelMetricsUtil
+from dfs import getCyclicVertex
 GOD_CLASS_AFTD_FEW = 4
 ONE_THIRD = 1/3
 HIGH_LCOM = 73 #0.725
@@ -13,6 +14,7 @@ VERY_HIGH_WMC = 45
 
 class ClassLevelSmellExtractor:
     def __init__(self, classEnts):
+        self.__classEnts = classEnts
         self.__classMetrics = ClassLevelMetricsUtil(classEnts).generateMetrics()
 
     def getSmells(self):
@@ -25,9 +27,32 @@ class ClassLevelSmellExtractor:
                                      "Refused_Request": self.isRefusedBequest(metrics),
                                      "Data_Class": self.isDataClass(metrics),
                                      "Feature_Envy": self.isFeatureEnvy(metrics),
-                                     "Brain_Class": self.isBrainClass(metrics)}
+                                     "Brain_Class": self.isBrainClass(metrics),
+                                     "Hub_Like_Dependency": self.isHubLikeDependency(metrics)}
 
         return classSmells
+
+    def __getClassDependsGraph(self):
+        graph = {}
+        for classEnt in self.__classEnts:
+            graph[classEnt.longname()] = {x.longname() for x in classEnt.dependsby().keys()}
+        return graph
+
+    def isHubLikeDependency(self, metrics):
+        # Hub_In > Median(Hub_In) and Hub_Out > Median(Hub_Out)
+        # |Hub_In - Hub_Out| < 1/4 *  (Hub_In + Hub_Out)
+        dataListHubIn = self.getMetricDistribution("Hub_In")
+        dataListHubOut = self.getMetricDistribution("Hub_Out")
+
+        medianHubIn = getMedian(dataListHubIn)
+        medianHubOut = getMedian(dataListHubOut)
+
+        return metrics["Hub_In"] > medianHubIn and metrics["Hub_Out"] > medianHubOut and \
+               abs(metrics["Hub_In"] - metrics["Hub_Out"]) < 1/4 * (metrics["Hub_In"] + metrics["Hub_Out"])
+
+    def getCyclicDepSmell(self):
+        graph = self.__getClassDependsGraph()
+        return getCyclicVertex(graph)
 
     def getClassMetrics(self):
         return self.__classMetrics

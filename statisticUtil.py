@@ -9,6 +9,10 @@ def getStdev(dataList):
     return np.std(dataList)
 
 
+def getMedian(dataList):
+    return np.median(dataList)
+
+
 def getQuartile(dataList, quartile):
     return np.percentile(dataList, 25 * quartile)
 
