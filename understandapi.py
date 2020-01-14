@@ -4,7 +4,7 @@ import statistics
 import os
 import numpy as np
 import csv
-from packageSmellUtil import PackageSmellUtil
+from packageSmellExtractor import PackageSmellUtil
 from methodLevelMetricsUtil import MethodLevelMetricsUtil
 from classLevelMetricsUtil import ClassLevelMetricsUtil
 from methodLevelSmellExtractor import MethodLevelSmellExtractor

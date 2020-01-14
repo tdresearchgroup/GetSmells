@@ -19,6 +19,9 @@ class ClassLevelSmellExtractor:
 
     def getSmells(self):
         classSmells = {}
+        cyclicDepSmells = self.getCyclicDepSmells()
+        unhealthyInheritanceSmells = self.getUnhealthyInheritanceSmells()
+
         for longName, metrics in self.__classMetrics.items():
             classSmells[longName] = {"God_Class": self.isGodClass(metrics),
                                      "Lazy_Class": self.isLazyClass(metrics),
@@ -28,7 +31,9 @@ class ClassLevelSmellExtractor:
                                      "Data_Class": self.isDataClass(metrics),
                                      "Feature_Envy": self.isFeatureEnvy(metrics),
                                      "Brain_Class": self.isBrainClass(metrics),
-                                     "Hub_Like_Dependency": self.isHubLikeDependency(metrics)}
+                                     "Hub_Like_Dependency": self.isHubLikeDependency(metrics),
+                                     "Cyclic_Dependency": longName in cyclicDepSmells,
+                                     "Unhealthy_Inheritance_Hierarchy": longName in unhealthyInheritanceSmells}
 
         return classSmells
 
@@ -37,6 +42,31 @@ class ClassLevelSmellExtractor:
         for classEnt in self.__classEnts:
             graph[classEnt.longname()] = {x.longname() for x in classEnt.dependsby().keys()}
         return graph
+
+    def getUnhealthyInheritanceSmells(self):
+        # a parent class depends on one of its children or
+        # a class depends on a parent class and all its children
+        smells = set()
+        for classEnt in self.__classEnts:
+            dependNames = self.__getDependNames(classEnt)
+
+            childrenNames = self.__getChildrenNames(classEnt)
+            if len(childrenNames.intersection(dependNames)) > 0:
+                smells.add(classEnt.longname())
+                continue
+
+            for depend in classEnt.depends().keys():
+                dChildrenNames = self.__getChildrenNames(depend)
+                if dChildrenNames.issubset(dependNames):
+                    smells.add(classEnt.longname())
+                    break
+        return smells
+
+    def __getDependNames(self, classEnt):
+        return {x.longname() for x in classEnt.depends().keys()}
+
+    def __getChildrenNames(self, classEnt):
+        return {x.ent().longname() for x in classEnt.refs("Extendby", "Class")}
 
     def isHubLikeDependency(self, metrics):
         # Hub_In > Median(Hub_In) and Hub_Out > Median(Hub_Out)
@@ -50,7 +80,7 @@ class ClassLevelSmellExtractor:
         return metrics["Hub_In"] > medianHubIn and metrics["Hub_Out"] > medianHubOut and \
                abs(metrics["Hub_In"] - metrics["Hub_Out"]) < 1/4 * (metrics["Hub_In"] + metrics["Hub_Out"])
 
-    def getCyclicDepSmell(self):
+    def getCyclicDepSmells(self):
         graph = self.__getClassDependsGraph()
         return getCyclicVertex(graph)
 
