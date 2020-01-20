@@ -1,86 +1,49 @@
+import argparse
+import os.path
+
 import understandapi
 import understandcli
-import sys
-import os
-import platform
 
-def printCliHelp():
-    print("Usage:\npython3 getsmells.py [sourcePath] [outputPath (optional)]\n")
-    print("sourcePath: The path to the directory with a single project's code")
-    print("outputPath: The directory to output the CSVs with code smells (one for class-level and one for method-level),\n"
-          "\tthe debug output (log), the Understand Project, the list of classes/methods with each smell (default:\n"
-          "\tcreate a new subdirectory in the current directory)")
 
-# The command line interface for the Get Smells tool
-def cli(args):
-    if len(args) < 2:
-        printCliHelp()
-        return
+def main(sourcePath, outputPath, includeMetricsInCsv):
+    projectName = os.path.split(sourcePath)[-1]
+    sourcePath = os.path.normcase(sourcePath)
+    outputPath = os.path.normcase(outputPath or
+                                  os.path.join(os.path.dirname(os.path.realpath(__file__)), "getsmells-output"))
+    udbDirPath = os.path.join(outputPath, "UnderstandProjects")
 
-    sourcePath = args[1]
+    outputLogFile = os.path.join(outputPath, projectName + "-log.txt")
+    udbFile = os.path.join(udbDirPath, projectName + ".udb")
 
     if not os.path.isdir(sourcePath):
         print("Error: The specified source path either does not exist or is not a directory")
         return
-    sourcePath = os.path.normcase(os.path.join(sourcePath, ''))  # fix slash direction and trailing slash
-
-    runName = os.path.split(os.path.split(sourcePath)[0])[1]
-
-    outputPath = os.path.dirname(os.path.realpath(__file__))
-    includeMetricsInCsv = True
-    if len(args) >= 3:
-        outputPath = args[2]
-        if len(args) >= 4:
-            if args[3] == "-m":
-                includeMetricsInCsv = True
-            else:
-                includeMetricsInCsv = False
-        else:
-            includeMetricsInCsv = True
-    else:
-        outputPath = os.path.join(outputPath, "getsmells-output")
     if not os.path.exists(outputPath):
         os.makedirs(outputPath)
+    if not os.path.exists(udbDirPath):
+        os.makedirs(udbDirPath)
 
-    outputPath = os.path.normcase(os.path.join(outputPath, ''))  # fix slash direction and trailing slash
-    outputLogFile = os.path.join(outputPath, runName + "-log.txt")
+    with open(outputLogFile, "w+") as log:
+        log.write(f"Starting GetSmells on '{sourcePath}' (output at '{outputPath})\n")
 
-    welcomeMsg = "Starting GetSmells on '" + sourcePath + ' (output at ' + outputPath + ")"
-    print(welcomeMsg)
-    log = open(outputLogFile, "w+")
-    log.write(welcomeMsg + "\n")
+        print(f"Step 1/2: Creating an Understand Project for '{projectName}'")
+        if understandcli.analyzeCode(sourcePath, udbFile, log) == 1:
+            return
 
-    projectDirectoryPath = os.path.join(outputPath, "UnderstandProjects")
-    if not os.path.exists(projectDirectoryPath):
-        os.makedirs(projectDirectoryPath)
-    projectPath = os.path.join(projectDirectoryPath, runName + ".udb")
+        print(f"Step 2/2: Extracting code smells from metrics on '{projectName}'")
+        if understandapi.extractSmells(udbFile, outputPath, projectName, log, includeMetricsInCsv) == 1:
+            return
 
-    print("Step 1/2: Creating an Understand Project for '" + runName + "'")
-    if understandcli.analyzeCode(sourcePath, projectPath, log) == 1:
-        log.close()
-        return
-
-    print("Step 2/2: Extracting code smells from metrics on '" + runName + "'")
-    if understandapi.extractSmells(projectPath, outputPath, runName, log, includeMetricsInCsv) == 1:
-        log.close()
-        return
-
-    print("GetSmells complete!")
-    log.write("\n\nGetSmells Complete! (End of log)")
-    log.close()
+        print("GetSmells complete!")
+        log.write("\n\nGetSmells Complete! (End of log)")
 
 
 if __name__ == '__main__':
-    cli(sys.argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("sourcePath", help="The path to the directory with a single project's code")
+    parser.add_argument("-o", "--outputPath", help="The directory to output the CSVs with code smells")
+    parser.add_argument("-m", "--metricsInclude", action="store_true", help="Include metrics in CSV file")
+    args = parser.parse_args()
 
-    # For testing
-    '''
-    if platform.system() == "Windows":
-        cli(["",
-         "C:/Users/cb1782/Downloads/apache-tomcat-7.0.82-src/apache-tomcat-7.0.82-src",
-         "C:/Users/cb1782/output1/"])
-    else:
-        cli(["",
-         "/Users/charles/Documents/DIS/code/apache-tomcat-8.0.49-src",
-         "/Users/charles/Documents/DIS/output1/"])
-    '''
+    main(args.sourcePath, args.outputPath, args.metricsInclude)
+
