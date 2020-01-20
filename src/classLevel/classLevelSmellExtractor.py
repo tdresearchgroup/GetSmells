@@ -17,10 +17,15 @@ class ClassLevelSmellExtractor:
         self.__classEnts = classEnts
         self.__classMetrics = ClassLevelMetricsUtil(classEnts).generateMetrics()
 
-    def getSmells(self):
+    def getSmells(self, methodSmells):
         classSmells = {}
         cyclicDepSmells = self.getCyclicDepSmells()
         unhealthyInheritanceSmells = self.getUnhealthyInheritanceSmells()
+
+        for methodLongName, smellDict in methodSmells.items():
+            className = self.__methodName2className(methodLongName)
+            if smellDict["Brain_Method"]:
+                self.__classMetrics[className]["numberOfBrainMethod"] += 1
 
         for longName, metrics in self.__classMetrics.items():
             classSmells[longName] = {"God_Class": self.isGodClass(metrics),
@@ -37,6 +42,9 @@ class ClassLevelSmellExtractor:
 
         return classSmells
 
+    def __methodName2className(self, methodName):
+        return '.'.join(methodName.split('.')[:-1])
+
     def __getClassDependsGraph(self):
         graph = {}
         for classEnt in self.__classEnts:
@@ -44,8 +52,6 @@ class ClassLevelSmellExtractor:
         return graph
 
     def getUnhealthyInheritanceSmells(self):
-        # a parent class depends on one of its children or
-        # a class depends on a parent class and all its children
         smells = set()
         for classEnt in self.__classEnts:
             dependNames = self.__getDependNames(classEnt)
@@ -69,8 +75,6 @@ class ClassLevelSmellExtractor:
         return {x.ent().longname() for x in classEnt.refs("Extendby", "Class")}
 
     def isHubLikeDependency(self, metrics):
-        # Hub_In > Median(Hub_In) and Hub_Out > Median(Hub_Out)
-        # |Hub_In - Hub_Out| < 1/4 *  (Hub_In + Hub_Out)
         dataListHubIn = self.getMetricDistribution("Hub_In")
         dataListHubOut = self.getMetricDistribution("Hub_Out")
 
@@ -99,14 +103,11 @@ class ClassLevelSmellExtractor:
                metrics["TCC"] < ONE_THIRD
 
     def isLazyClass(self, metrics):
-        # Lazy Class
-        # - LOC (Lines of Code) < 1st quartile of system
         dataListLOC = self.getMetricDistribution("LOC")
         firstQuatileLOC = getQuartile(dataListLOC, 1)
         return metrics["LOC"] < firstQuatileLOC
 
     def isComplexClass(self, metrics):
-        # - CMC (Complex Method Count; number of methods with complexity > HIGH_METHOD_COMPLEXITY) >= 1
         return metrics["CMC"] >= 1
 
     def isLongClass(self, metrics):

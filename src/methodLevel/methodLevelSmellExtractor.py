@@ -23,9 +23,6 @@ class MethodLevelSmellExtractor:
         return [x[metricName] for x in self.__methodMetrics.values()]
 
     def isLongMethod(self, metrics):
-        # Long Method
-        # methodSmellLong = (amethod["LOC"] > meanMethodLoc)
-        # - LOC (Lines of Code) > 20 - Zadia
         return metrics["LOC"] > 20
 
     def isLongParameterList(self, metrics):
@@ -34,17 +31,9 @@ class MethodLevelSmellExtractor:
         return metrics["inputs"] > mean
 
     def isShotgunSurgery(self, metrics):
-        # Shotgun Surgery
-        # - CM (Changing Methods) > 10
-        # - CC (Changing Classes) > 5
         return metrics["CM"] > 10 and metrics["CC"] > 5
 
     def isBrainMethod(self, metrics):
-        # Brain Method
-        # - LOC (Line of Code) > 65
-        # - CYCLO(Cyclomatic Complexity) / LOC(Line of Code) >= 0.24
-        # - MAXNESTING(Maximum Nesting Level) >= 5
-        # - NOAV(Number of Accessed Variables) > 8
         return metrics["LOC"] > 65 and \
                metrics["CYCLO"]/metrics["LOC"] >= 0.24 and \
                metrics["MAXNESTING"] >= 5 and \
