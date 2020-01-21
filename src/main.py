@@ -1,35 +1,27 @@
 import argparse
 import os.path
 
-import understandapi
-import understandcli
+from app import App
 
 
 def main(sourcePath, outputPath, includeMetricsInCsv):
     projectName = os.path.split(sourcePath)[-1]
     sourcePath = os.path.normcase(sourcePath)
     outputPath = os.path.normcase(outputPath or
-                                  os.path.join(os.path.dirname(os.path.realpath(__file__)), "getsmells-output"))
-    udbDirPath = os.path.join(outputPath, "UnderstandProjects")
-
-    udbFile = os.path.join(udbDirPath, projectName + ".udb")
+                                  os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "getsmells-output"))
 
     if not os.path.isdir(sourcePath):
         print("Error: The specified source path either does not exist or is not a directory")
         return
-    if not os.path.exists(outputPath):
-        os.makedirs(outputPath)
-    if not os.path.exists(udbDirPath):
-        os.makedirs(udbDirPath)
+
+    app = App(sourcePath, outputPath)
 
     print(f"Starting GetSmells on '{sourcePath}' (output at '{outputPath})\n")
     print(f"Step 1/2: Creating an Understand Project for '{projectName}'")
-    if understandcli.analyzeCode(sourcePath, udbFile) == 1:
-        return
+    app.analyzeCode()
 
     print(f"Step 2/2: Extracting code smells from metrics on '{projectName}'")
-    if understandapi.extractSmells(udbFile, outputPath, projectName, includeMetricsInCsv) == 1:
-        return
+    app.extractSmells(includeMetricsInCsv)
 
     print("GetSmells complete!")
 

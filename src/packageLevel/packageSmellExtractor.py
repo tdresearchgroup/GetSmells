@@ -1,7 +1,7 @@
 from src.common.dfs import getCyclicVertex
 
 
-class PackageSmellUtil:
+class PackageSmellExtractor:
 
     def __init__(self, classEnts):
         self.caceInfo = {}
