@@ -5,37 +5,22 @@ import platform
 # https://scitools.com/support/commandline/
 
 
-if platform.system() == "Windows":
-    undPath = "und"
-else:
-    undPath = "/Applications/Understand.app/Contents/MacOS/und"
+UND_PATH = "und" if IS_WINDOWS else "/Applications/Understand.app/Contents/MacOS/und"
 
 
 def makecmd(args):
-    if platform.system() == "Windows":
-        return args
-    else:
-        return " ".join(args)
+    return args if IS_WINDOWS else " ".join(args)
 
-def analyzeCode(sourcePath, projectPath, log):
-    understandVersion = str(subprocess.getoutput(makecmd([undPath, 'version'])))
-    if "Build" not in understandVersion:
-        print("Error: Could not run the Understand command line (could not run '" + undPath + "'); check the PATH")
-        log.write("Error: '$ und version' returned '" + understandVersion + "'")
+def analyzeCode(sourcePath, projectPath):
+    try:
+        subprocess.check_output(makecmd([UND_PATH, 'version']))
+        subprocess.check_output(makecmd([UND_PATH, 'create', '-languages', 'Java', projectPath]))
+        subprocess.check_output(makecmd([UND_PATH, 'add', sourcePath, projectPath]))
+        subprocess.check_output(makecmd([UND_PATH, 'settings', '-metrics', 'all', projectPath]))
+        subprocess.check_output(makecmd([UND_PATH, 'analyze', projectPath]))
+    except subprocess.CalledProcessError as e:
+        print(e.output)
         return 1
-
-    log.write("Understand version = " + understandVersion + "\n")
-    log.write("Create project output = " +
-              str(subprocess.getoutput(makecmd([undPath, 'create', '-languages', 'Java', projectPath]))) + "\n")
-    undOutput = str(subprocess.getoutput(makecmd([undPath, 'add', sourcePath, projectPath])))
-    print("\t" + undOutput)
-    log.write("Add files output = " + undOutput + "\n")
-    log.write("Update settings output = " +
-              str(subprocess.getoutput(makecmd([undPath, 'settings', '-metrics', 'all', projectPath]))) + "\n")
-
-    print("\tStarting metric analysis...")
-    log.write("Starting metric analysis...\n" +
-              str(subprocess.getoutput(makecmd([undPath, 'analyze', projectPath]))) + "\n")
 
     print("\tMetric analysis complete")
 

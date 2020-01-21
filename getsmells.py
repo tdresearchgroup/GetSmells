@@ -12,7 +12,6 @@ def main(sourcePath, outputPath, includeMetricsInCsv):
                                   os.path.join(os.path.dirname(os.path.realpath(__file__)), "getsmells-output"))
     udbDirPath = os.path.join(outputPath, "UnderstandProjects")
 
-    outputLogFile = os.path.join(outputPath, projectName + "-log.txt")
     udbFile = os.path.join(udbDirPath, projectName + ".udb")
 
     if not os.path.isdir(sourcePath):
@@ -23,19 +22,16 @@ def main(sourcePath, outputPath, includeMetricsInCsv):
     if not os.path.exists(udbDirPath):
         os.makedirs(udbDirPath)
 
-    with open(outputLogFile, "w+") as log:
-        log.write(f"Starting GetSmells on '{sourcePath}' (output at '{outputPath})\n")
+    print(f"Starting GetSmells on '{sourcePath}' (output at '{outputPath})\n")
+    print(f"Step 1/2: Creating an Understand Project for '{projectName}'")
+    if understandcli.analyzeCode(sourcePath, udbFile) == 1:
+        return
 
-        print(f"Step 1/2: Creating an Understand Project for '{projectName}'")
-        if understandcli.analyzeCode(sourcePath, udbFile, log) == 1:
-            return
+    print(f"Step 2/2: Extracting code smells from metrics on '{projectName}'")
+    if understandapi.extractSmells(udbFile, outputPath, projectName, includeMetricsInCsv) == 1:
+        return
 
-        print(f"Step 2/2: Extracting code smells from metrics on '{projectName}'")
-        if understandapi.extractSmells(udbFile, outputPath, projectName, log, includeMetricsInCsv) == 1:
-            return
-
-        print("GetSmells complete!")
-        log.write("\n\nGetSmells Complete! (End of log)")
+    print("GetSmells complete!")
 
 
 if __name__ == '__main__':
