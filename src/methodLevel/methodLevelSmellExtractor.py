@@ -1,4 +1,4 @@
-from src.common.statisticUtil import getMean
+from src.common import getMean, printProgress
 from src.methodLevel.methodLevelMetricsUtil import MethodLevelMetricsUtil
 
 
@@ -9,11 +9,15 @@ class MethodLevelSmellExtractor:
 
     def getSmells(self):
         methodSmells = {}
+        totalMethodsCount = len(self.__methodMetrics)
+        print("\tExtracting smells for", totalMethodsCount, "methods...")
+
         for longName, metrics in self.__methodMetrics.items():
             methodSmells[longName] = {"Long_Method": self.isLongMethod(metrics),
                                       "Long_Parameter_List": self.isLongParameterList(metrics),
                                       "Shotgun_Surgery": self.isShotgunSurgery(metrics),
                                       "Brain_Method": self.isBrainMethod(metrics)}
+            printProgress(len(methodSmells), totalMethodsCount)
         return methodSmells
 
     def getMethodMetrics(self):

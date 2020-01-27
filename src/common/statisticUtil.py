@@ -23,3 +23,8 @@ def getCumulativeZ(dataList, z):
     std = getStdev(dataList)
     return mean + z * std
 
+
+def printProgress(count, total):
+    statusUpdateInterval = round(total/10)
+    if count % statusUpdateInterval == 0:
+        print(f"\t\t{str(round(count/total*100))}% complete")

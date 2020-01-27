@@ -30,10 +30,11 @@ class App:
         self._runCmd([UND_PATH, 'analyze', self.udbFile]),
 
     def extractSmells(self, includeMetricsInCsv=True):
-        outputCsvFileClasses = os.path.join(self.outputPath, self.projectName + "-smells-classes.csv")
-        outputCsvFileMethods = os.path.join(self.outputPath, self.projectName + "-smells-methods.csv")
         outputTxtDirClasses = os.path.join(self.outputPath, self.projectName + "-smelly-classes")
         outputTxtDirMethods = os.path.join(self.outputPath, self.projectName + "-smelly-methods")
+
+        outputCsvFileClasses = os.path.join(outputTxtDirClasses, "smells-classes.csv")
+        outputCsvFileMethods = os.path.join(outputTxtDirMethods, "smells-methods.csv")
 
         if not os.path.exists(outputTxtDirClasses):
             os.makedirs(outputTxtDirClasses)
@@ -59,10 +60,6 @@ class App:
                                    classSmellExtractor.getClassMetrics() if includeMetricsInCsv else {})
 
     def _getSmellSummary(self, extractedSmells):
-        # methodSmells = {longName: {"Long_Method": False,
-        #                            "Long_Parameter_List": False,
-        #                            "Shotgun_Surgery": False,
-        #                            "Brain_Method": False}}
         smellSummary = {x: set() for x in next(iter(extractedSmells.values()))}
         for entName, smellDict in extractedSmells.items():
             for smellName, isSmell in smellDict.items():
@@ -75,7 +72,7 @@ class App:
         for smellName, entNames in smellSummary.items():
             outputFileName = os.path.join(outputTxtDir, smellName + ".txt")
             with open(outputFileName, "w") as outputFile:
-                outputFile.writelines(list(entNames))
+                outputFile.writelines(f"{line}\n" for line in list(entNames))
 
     def _generateDetailReport(self, outputCsvFileName, smells, metrics):
         fieldnames = ['Name'] + [x for x in next(iter(smells.values()))] + \
@@ -83,6 +80,7 @@ class App:
 
         with open(outputCsvFileName, 'w') as csvFile:
             writer = csv.DictWriter(csvFile, fieldnames=fieldnames, delimiter=",")
+            writer.writeheader()
             for longName, smellDict in smells.items():
                 row = {'Name': longName}
                 row.update(smellDict)

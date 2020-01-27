@@ -1,6 +1,6 @@
-from src.common.metricsUtil import MetricsUtil
+from src.common import MetricsUtil, printProgress
 
-METHOD_STATUS_UPDATE_INTERVAL = 5000
+METHOD_STATUS_UPDATE_INTERVAL = 200
 
 
 class MethodLevelMetricsUtil(MetricsUtil):
@@ -11,12 +11,9 @@ class MethodLevelMetricsUtil(MetricsUtil):
     def generateMetrics(self):
         methodLib = {}
         totalMethodsCount = len(self.methodEnts)
-        print("\tCalculating complex metrics for", totalMethodsCount, " methods...")
+        print("\tCalculating complex metrics for", totalMethodsCount, "methods...")
 
         for methodEnt in self.methodEnts:
-            if (len(methodLib)+1) % METHOD_STATUS_UPDATE_INTERVAL == 0:
-                print("\t\t" + str(round((len(methodLib)/totalMethodsCount)*100)) + "%% complete")
-
             methodLongName = methodEnt.longname()
 
             methodLib[methodLongName] = ({"LOC": self._getLOC(methodEnt),
@@ -26,15 +23,9 @@ class MethodLevelMetricsUtil(MetricsUtil):
                                           "NOAV": self.__getNOAV(methodEnt),
                                           "CYCLO": self._getCyclomatic(methodEnt),
                                           "MAXNESTING": self.__getMAXNESTING(methodEnt)})
-
-            # classLongName = '.'.join(methodLongName.split('.')[:-1])
-            # classLib[classLongName]["numberOfBrainMethod"] += 1
-
+            printProgress(len(methodLib), totalMethodsCount)
         return methodLib
 
-    #Inputs
-    #Method-Level Metric
-    #Includes parameters and global variables read
     def __getInputs(self, methodObj):
         return methodObj.metric(["CountInput"])['CountInput'] or 0
 
