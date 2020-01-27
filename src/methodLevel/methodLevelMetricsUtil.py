@@ -14,7 +14,7 @@ class MethodLevelMetricsUtil(MetricsUtil):
         print("\tCalculating complex metrics for", totalMethodsCount, "methods...")
 
         for methodEnt in self.methodEnts:
-            methodLongName = methodEnt.longname()
+            methodLongName = f"{methodEnt.longname()}@{methodEnt.id()}"
 
             methodLib[methodLongName] = ({"LOC": self._getLOC(methodEnt),
                                           "inputs": self.__getInputs(methodEnt),
