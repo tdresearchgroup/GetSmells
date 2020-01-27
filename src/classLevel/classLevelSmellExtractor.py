@@ -1,4 +1,4 @@
-from src.common.statisticUtil import getQuartile, getMean, getCumulativeZ, getMedian
+from src.common import getQuartile, getMean, getCumulativeZ, getMedian, printProgress
 from src.classLevel.classLevelMetricsUtil import ClassLevelMetricsUtil
 from src.common.dfs import getCyclicVertex
 GOD_CLASS_AFTD_FEW = 4
@@ -19,6 +19,9 @@ class ClassLevelSmellExtractor:
 
     def getSmells(self, methodSmells):
         classSmells = {}
+        totalClassCount = len(self.__classMetrics)
+        print("\tExtracting smells for", totalClassCount, "classes...")
+
         cyclicDepSmells = self.getCyclicDepSmells()
         unhealthyInheritanceSmells = self.getUnhealthyInheritanceSmells()
 
@@ -39,6 +42,7 @@ class ClassLevelSmellExtractor:
                                      "Hub_Like_Dependency": self.isHubLikeDependency(metrics),
                                      "Cyclic_Dependency": longName in cyclicDepSmells,
                                      "Unhealthy_Inheritance_Hierarchy": longName in unhealthyInheritanceSmells}
+            printProgress(len(classSmells), totalClassCount)
 
         return classSmells
 
@@ -48,7 +52,10 @@ class ClassLevelSmellExtractor:
     def __getClassDependsGraph(self):
         graph = {}
         for classEnt in self.__classEnts:
-            graph[classEnt.longname()] = {x.longname() for x in classEnt.dependsby().keys()}
+            # dependsByEnts include [Class, Interface, Annotation]
+            # However, by definition in paper, only includes class here
+            graph[classEnt.longname()] = {x.longname() for x in classEnt.dependsby().keys()
+                                          if x in self.__classEnts}
         return graph
 
     def getUnhealthyInheritanceSmells(self):
