@@ -36,7 +36,7 @@ class MethodLevelMetricsUtil(MetricsUtil):
         return len(methodObj.refs("Callby", "Method", True))
 
     def __getCC(self, methodObj):
-        return len({x.ent().ref("Definein", "Class").ent() for x in methodObj.refs("Callby", "Method", True)})
+        return len({x.ent().ref("Definein", "Class") for x in methodObj.refs("Callby", "Method", True)})
 
     def __getMAXNESTING(self, methodObj):
         return methodObj.metric(["MaxNesting"])["MaxNesting"] or 0

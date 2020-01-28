@@ -22,6 +22,12 @@ class ClassLevelSmellExtractor:
         totalClassCount = len(self.__classMetrics)
         print("\tExtracting smells for", totalClassCount, "classes...")
 
+        firstQuatileLOC = getQuartile(self.getMetricDistribution("LOC"), 1)
+        meanLOC = getMean(self.getMetricDistribution("LOC"))
+        veryHighWMC = getCumulativeZ(self.getMetricDistribution("WMC"), 1.5)
+        medianHubIn = getMedian(self.getMetricDistribution("Hub_In"))
+        medianHubOut = getMedian(self.getMetricDistribution("Hub_Out"))
+
         cyclicDepSmells = self.getCyclicDepSmells()
         unhealthyInheritanceSmells = self.getUnhealthyInheritanceSmells()
 
@@ -31,15 +37,15 @@ class ClassLevelSmellExtractor:
                 self.__classMetrics[className]["numberOfBrainMethod"] += 1
 
         for longName, metrics in self.__classMetrics.items():
-            classSmells[longName] = {"God_Class": self.isGodClass(metrics),
-                                     "Lazy_Class": self.isLazyClass(metrics),
+            classSmells[longName] = {"God_Class": self.isGodClass(metrics, veryHighWMC),
+                                     "Lazy_Class": self.isLazyClass(metrics, firstQuatileLOC),
                                      "Complex_Class": self.isComplexClass(metrics),
-                                     "Long_Class": self.isLongClass(metrics),
+                                     "Long_Class": self.isLongClass(metrics, meanLOC),
                                      "Refused_Request": self.isRefusedBequest(metrics),
                                      "Data_Class": self.isDataClass(metrics),
                                      "Feature_Envy": self.isFeatureEnvy(metrics),
-                                     "Brain_Class": self.isBrainClass(metrics),
-                                     "Hub_Like_Dependency": self.isHubLikeDependency(metrics),
+                                     "Brain_Class": self.isBrainClass(metrics, veryHighWMC),
+                                     "Hub_Like_Dependency": self.isHubLikeDependency(metrics, medianHubIn, medianHubOut),
                                      "Cyclic_Dependency": longName in cyclicDepSmells,
                                      "Unhealthy_Inheritance_Hierarchy": longName in unhealthyInheritanceSmells}
             printProgress(len(classSmells), totalClassCount)
@@ -81,13 +87,7 @@ class ClassLevelSmellExtractor:
     def __getChildrenNames(self, classEnt):
         return {x.ent().longname() for x in classEnt.refs("Extendby", "Class")}
 
-    def isHubLikeDependency(self, metrics):
-        dataListHubIn = self.getMetricDistribution("Hub_In")
-        dataListHubOut = self.getMetricDistribution("Hub_Out")
-
-        medianHubIn = getMedian(dataListHubIn)
-        medianHubOut = getMedian(dataListHubOut)
-
+    def isHubLikeDependency(self, metrics, medianHubIn, medianHubOut):
         return metrics["Hub_In"] > medianHubIn and metrics["Hub_Out"] > medianHubOut and \
                abs(metrics["Hub_In"] - metrics["Hub_Out"]) < 1/4 * (metrics["Hub_In"] + metrics["Hub_Out"])
 
@@ -101,25 +101,18 @@ class ClassLevelSmellExtractor:
     def getMetricDistribution(self, metricName):
         return [x[metricName] for x in self.__classMetrics.values()]
 
-    def isGodClass(self, metrics):
-        dataListWMC = self.getMetricDistribution("WMC")
-        veryHigh = getCumulativeZ(dataListWMC, 1.5)
-
+    def isGodClass(self, metrics, veryHighWMC):
         return metrics["ATFD"] > GOD_CLASS_AFTD_FEW and \
-               metrics["WMC"] >= veryHigh and \
+               metrics["WMC"] >= veryHighWMC and \
                metrics["TCC"] < ONE_THIRD
 
-    def isLazyClass(self, metrics):
-        dataListLOC = self.getMetricDistribution("LOC")
-        firstQuatileLOC = getQuartile(dataListLOC, 1)
+    def isLazyClass(self, metrics, firstQuatileLOC):
         return metrics["LOC"] < firstQuatileLOC
 
     def isComplexClass(self, metrics):
         return metrics["CMC"] >= 1
 
-    def isLongClass(self, metrics):
-        dataListLOC = self.getMetricDistribution("LOC")
-        meanLOC = getMean(dataListLOC)
+    def isLongClass(self, metrics, meanLOC):
         return metrics["LOC"] > meanLOC
 
     def isRefusedBequest(self, metrics):
@@ -133,8 +126,8 @@ class ClassLevelSmellExtractor:
     def isFeatureEnvy(self, metrics):
         return metrics["LCOM"] > HIGH_LCOM
 
-    def isBrainClass(self, metrics):
-        return not self.isGodClass(metrics) and \
+    def isBrainClass(self, metrics, veryHighWMC):
+        return not self.isGodClass(metrics, veryHighWMC) and \
                metrics["WMC"] >= 47 and \
                metrics["TCC"] < 0.5 and \
                ((metrics["numberOfBrainMethod"] > 1 and metrics["LOC"] >= 197) or
