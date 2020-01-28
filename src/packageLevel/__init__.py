@@ -1,1 +1,1 @@
-from .packageSmellExtractor import PackageSmellExtractor
+from .packageLevelSmellExtractor import PackageSmellExtractor

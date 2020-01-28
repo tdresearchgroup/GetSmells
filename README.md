@@ -93,7 +93,7 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 - Inputs > mean of system
 
 **Shotgun Surgery**
-- * The Evolution and Impact of Code Smells: A Case Study of Two Open Source Systems*
+- *The Evolution and Impact of Code Smells: A Case Study of Two Open Source Systems*
 - CM (Changing Methods) > 10
     - CM: number of distinct methods that call a method of the class
 - CC (Changing Classes) > 5
@@ -134,15 +134,16 @@ getsmells
 │   │   ├── statisticUtil.py: Responsible for statistics
 │   │   └── __init__.py
 │   ├── classLevel
-│   │   ├── classLevelMetricsUtil.py: Extract metrics for class level smells
-│   │   ├── classLevelSmellExtractor.py: Extract class level smells
+│   │   ├── classLevelMetricsUtil.py
+│   │   ├── classLevelSmellExtractor.py
 │   │   ├── __init__.py
 │   ├── methodLevel
-│   │   ├── methodLevelMetricsUtil.py: Extract metrics for method level smells
-│   │   ├── methodLevelSmellExtractor.py: Extract method level smells
+│   │   ├── methodLevelMetricsUtil.py
+│   │   ├── methodLevelSmellExtractor.py
 │   │   ├── __init__.py
 │   ├── packageLevel
-│   │   ├── packageLevelSmellExtractor.py: Extract smells for package level smells
+│   │   ├── packageLevelSmellExtractor.py
+│   │   ├── packageLevelSmellExtractor.py
 ├── README.md
 ├── .pylintrc
 └── .gitignore 

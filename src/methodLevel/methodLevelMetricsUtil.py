@@ -1,7 +1,5 @@
 from src.common import MetricsUtil, printProgress
 
-METHOD_STATUS_UPDATE_INTERVAL = 200
-
 
 class MethodLevelMetricsUtil(MetricsUtil):
 
