@@ -24,7 +24,7 @@ class ClassLevelSmellExtractor:
 
         firstQuatileLOC = getQuartile(self.getMetricDistribution("LOC"), 1)
         meanLOC = getMean(self.getMetricDistribution("LOC"))
-        veryHighWMC = getCumulativeZ(self.getMetricDistribution("WMC"), 1.5)
+        veryHighWMC = getCumulativeZ(self.getMetricDistribution("WMC"), 1.44)
         medianHubIn = getMedian(self.getMetricDistribution("Hub_In"))
         medianHubOut = getMedian(self.getMetricDistribution("Hub_Out"))
 
