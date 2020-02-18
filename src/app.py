@@ -34,20 +34,13 @@ class App:
         self._runCmd([UND_PATH, 'analyze', self.udbFile]),
 
     def extractSmells(self, includeMetricsInCsv=True):
-        outputTxtDirClasses = os.path.join(self.outputPath, self.projectName + "-smelly-classes")
-        outputTxtDirMethods = os.path.join(self.outputPath, self.projectName + "-smelly-methods")
-        outputTxtDirPackages = os.path.join(self.outputPath, self.projectName + "-smelly-packages")
+        outputDir = os.path.join(self.outputPath, self.projectName)
+        outputCsvFileClasses = os.path.join(outputDir, "smells-classes.csv")
+        outputCsvFileMethods = os.path.join(outputDir, "smells-methods.csv")
+        outputCsvFilePackages = os.path.join(outputDir, "smells-packages.csv")
 
-        outputCsvFileClasses = os.path.join(outputTxtDirClasses, "smells-classes.csv")
-        outputCsvFileMethods = os.path.join(outputTxtDirMethods, "smells-methods.csv")
-        outputCsvFilePackages = os.path.join(outputTxtDirPackages, "smells-packages.csv")
-
-        if not os.path.exists(outputTxtDirClasses):
-            os.makedirs(outputTxtDirClasses)
-        if not os.path.exists(outputTxtDirMethods):
-            os.makedirs(outputTxtDirMethods)
-        if not os.path.exists(outputTxtDirPackages):
-            os.makedirs(outputTxtDirPackages)
+        if not os.path.exists(outputDir):
+            os.makedirs(outputDir)
 
         db = understand.open(self.udbFile)
         classEnts = db.ents("Class ~Unresolved ~Unknown")
@@ -55,21 +48,18 @@ class App:
 
         methodSmellExtractor = MethodLevelSmellExtractor(methodEnts)
         methodSmells = methodSmellExtractor.getSmells()
-        self._generateSummaryReport(methodSmells, outputTxtDirMethods)
         self._generateDetailReport(outputCsvFileMethods,
                                    methodSmells,
                                    methodSmellExtractor.getMethodMetrics() if includeMetricsInCsv else {})
 
         classSmellExtractor = ClassLevelSmellExtractor(classEnts)
         classSmells = classSmellExtractor.getSmells(methodSmells)
-        self._generateSummaryReport(classSmells, outputTxtDirClasses)
         self._generateDetailReport(outputCsvFileClasses,
                                    classSmells,
                                    classSmellExtractor.getClassMetrics() if includeMetricsInCsv else {})
 
         packageSmellExtractor = PackageSmellExtractor(classEnts)
         packageSmells = packageSmellExtractor.getSmells()
-        self._generateSummaryReport(packageSmells, outputTxtDirPackages)
         self._generateDetailReport(outputCsvFilePackages,
                                    packageSmells,
                                    packageSmellExtractor.getPackageMetrics() if includeMetricsInCsv else {})
@@ -81,13 +71,6 @@ class App:
                 if isSmell:
                     smellSummary[smellName].add(entName)
         return smellSummary
-
-    def _generateSummaryReport(self, smells, outputTxtDir):
-        smellSummary = self._getSmellSummary(smells)
-        for smellName, entNames in smellSummary.items():
-            outputFileName = os.path.join(outputTxtDir, smellName + ".txt")
-            with open(outputFileName, "w") as outputFile:
-                outputFile.writelines(f"{line}\n" for line in list(entNames))
 
     def _generateDetailReport(self, outputCsvFileName, smells, metrics):
         fieldnames = ['Name'] + [x for x in next(iter(smells.values()))] + \
