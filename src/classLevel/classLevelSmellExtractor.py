@@ -46,7 +46,7 @@ class ClassLevelSmellExtractor:
                                      "Feature_Envy": self.isFeatureEnvy(metrics),
                                      "Brain_Class": self.isBrainClass(metrics, veryHighWMC),
                                      "Hub_Like_Dependency": self.isHubLikeDependency(metrics, medianHubIn, medianHubOut),
-                                     "Cyclic_Dependency": longName in cyclicDepSmells,
+                                     "Class_Cyclic_Dependency": longName in cyclicDepSmells,
                                      "Unhealthy_Inheritance_Hierarchy": longName in unhealthyInheritanceSmells}
             printProgress(len(classSmells), totalClassCount)
 

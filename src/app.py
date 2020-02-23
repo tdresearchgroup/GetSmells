@@ -38,6 +38,7 @@ class App:
         outputCsvFileClasses = os.path.join(outputDir, "smells-classes.csv")
         outputCsvFileMethods = os.path.join(outputDir, "smells-methods.csv")
         outputCsvFilePackages = os.path.join(outputDir, "smells-packages.csv")
+        outputCsvFileOverall = os.path.join(outputDir, self.projectName + "-overall.csv")
 
         if not os.path.exists(outputDir):
             os.makedirs(outputDir)
@@ -64,6 +65,8 @@ class App:
                                    packageSmells,
                                    packageSmellExtractor.getPackageMetrics() if includeMetricsInCsv else {})
 
+        self._generateOverallReport(methodSmells, classSmells, packageSmells, outputCsvFileOverall)
+
     def _getSmellSummary(self, extractedSmells):
         smellSummary = {x: set() for x in next(iter(extractedSmells.values()))}
         for entName, smellDict in extractedSmells.items():
@@ -89,4 +92,42 @@ class App:
         args = args if IS_WINDOWS else " ".join(args)
         subprocess.run(args, shell=True, check=True, stdout=subprocess.DEVNULL)
 
+    def _getClassName(self, methodName):
+        return '.'.join(methodName.split('.')[:-1])
 
+    def _getPackageName(self, className):
+        return '.'.join(className.split('.')[:-1])
+
+    def _generateOverallReport(self, methodSmells, classSmells, packageSmells, outputCsvFileOverall):
+        orderedColNames = ['Name'] + \
+                          [x for x in next(iter(classSmells.values()))] + \
+                          [x for x in next(iter(methodSmells.values()))] + \
+                          [x for x in next(iter(packageSmells.values()))]
+
+        # integrate package smells
+        for longName, smellDict in classSmells.items():
+            packageName = self._getPackageName(longName)
+            if packageName not in packageSmells:
+                print(f"WARNING: class: {longName} with packageName: {packageName} is not in package smell dict")
+            else:
+                smellDict.update(packageSmells[packageName])
+            smellDict["Name"] = longName
+
+        # integrate method smells
+        for longName, smellDict in methodSmells.items():
+            className = self._getClassName(longName)
+            if className not in classSmells:
+                # ignore interface methods
+                # print(f"WARNING: method: {longName} with className: {className} is not in class smell dict")
+                pass
+            else:
+                classSmellValue = classSmells[className]
+                classSmellValue.update({key: classSmellValue.get(key, 0) + smellDict[key] for key in smellDict})
+
+        self._outputCsvFile(classSmells.values(), outputCsvFileOverall, orderedColNames)
+
+    def _outputCsvFile(self, data, fileName, orderedColNames):
+        with open(fileName, 'w') as csvFile:
+            writer = csv.DictWriter(csvFile, fieldnames=orderedColNames, delimiter=",")
+            writer.writeheader()
+            writer.writerows(data)

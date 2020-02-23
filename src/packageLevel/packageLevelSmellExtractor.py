@@ -11,18 +11,20 @@ class PackageSmellExtractor:
         return getCyclicVertex(pkDependsOnPk)
 
     def isUnstableDependency(self, metrics):
+        unstableSet = set()
         for dependsOnPk in metrics["dependsOnPk"]:
             if metrics["instability"] < self.__packageMetrics[dependsOnPk]["instability"]:
-                return dependsOnPk
-        return ""
+                unstableSet.add(dependsOnPk)
+        metrics["unstableOn"] = unstableSet
+        return unstableSet
 
     def getSmells(self):
         print(f"\tExtracting smells for {len(self.__packageMetrics)} packages...")
         packageSmells = {}
         cyclicDepSmells = self.getCyclicDepSmells({k: v["dependsOnPk"] for k, v in self.__packageMetrics.items()})
         for pkName, metrics in self.__packageMetrics.items():
-            packageSmells[pkName] = {"Unstable_Dependency": self.isUnstableDependency(metrics),
-                                     "Cyclic_Dependency": pkName in cyclicDepSmells}
+            packageSmells[pkName] = {"Unstable_Dependency": len(self.isUnstableDependency(metrics)),
+                                     "Package_Cyclic_Dependency": pkName in cyclicDepSmells}
         return packageSmells
 
     def getPackageMetrics(self):
