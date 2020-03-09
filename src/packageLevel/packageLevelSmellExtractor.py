@@ -24,7 +24,7 @@ class PackageSmellExtractor:
         cyclicDepSmells = self.getCyclicDepSmells({k: v["dependsOnPk"] for k, v in self.__packageMetrics.items()})
         for pkName, metrics in self.__packageMetrics.items():
             packageSmells[pkName] = {"Unstable_Dependency": len(self.isUnstableDependency(metrics)),
-                                     "Package_Cyclic_Dependency": pkName in cyclicDepSmells}
+                                     "Package_Cyclic_Dependency": int(pkName in cyclicDepSmells)}
         return packageSmells
 
     def getPackageMetrics(self):

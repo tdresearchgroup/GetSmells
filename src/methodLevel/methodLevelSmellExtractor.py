@@ -15,10 +15,10 @@ class MethodLevelSmellExtractor:
         parameterMean = getMean(self.getMetricDistribution("inputs"))
 
         for longName, metrics in self.__methodMetrics.items():
-            methodSmells[longName] = {"Long_Method": self.isLongMethod(metrics),
-                                      "Long_Parameter_List": self.isLongParameterList(metrics, parameterMean),
-                                      "Shotgun_Surgery": self.isShotgunSurgery(metrics),
-                                      "Brain_Method": self.isBrainMethod(metrics)}
+            methodSmells[longName] = {"Long_Method": int(self.isLongMethod(metrics)),
+                                      "Long_Parameter_List": int(self.isLongParameterList(metrics, parameterMean)),
+                                      "Shotgun_Surgery": int(self.isShotgunSurgery(metrics)),
+                                      "Brain_Method": int(self.isBrainMethod(metrics))}
             printProgress(len(methodSmells), totalMethodsCount)
         return methodSmells
 

@@ -37,17 +37,17 @@ class ClassLevelSmellExtractor:
                 self.__classMetrics[className]["numberOfBrainMethod"] += 1
 
         for longName, metrics in self.__classMetrics.items():
-            classSmells[longName] = {"God_Class": self.isGodClass(metrics, veryHighWMC),
-                                     "Lazy_Class": self.isLazyClass(metrics, firstQuatileLOC),
-                                     "Complex_Class": self.isComplexClass(metrics),
-                                     "Long_Class": self.isLongClass(metrics, meanLOC),
-                                     "Refused_Request": self.isRefusedBequest(metrics),
-                                     "Data_Class": self.isDataClass(metrics),
-                                     "Feature_Envy": self.isFeatureEnvy(metrics),
-                                     "Brain_Class": self.isBrainClass(metrics, veryHighWMC),
-                                     "Hub_Like_Dependency": self.isHubLikeDependency(metrics, medianHubIn, medianHubOut),
-                                     "Class_Cyclic_Dependency": longName in cyclicDepSmells,
-                                     "Unhealthy_Inheritance_Hierarchy": longName in unhealthyInheritanceSmells}
+            classSmells[longName] = {"God_Class": int(self.isGodClass(metrics, veryHighWMC)),
+                                     "Lazy_Class": int(self.isLazyClass(metrics, firstQuatileLOC)),
+                                     "Complex_Class": int(self.isComplexClass(metrics)),
+                                     "Long_Class": int(self.isLongClass(metrics, meanLOC)),
+                                     "Refused_Request": int(self.isRefusedBequest(metrics)),
+                                     "Data_Class": int(self.isDataClass(metrics)),
+                                     "Feature_Envy": int(self.isFeatureEnvy(metrics)),
+                                     "Brain_Class": int(self.isBrainClass(metrics, veryHighWMC)),
+                                     "Hub_Like_Dependency": int(self.isHubLikeDependency(metrics, medianHubIn, medianHubOut)),
+                                     "Class_Cyclic_Dependency": int(longName in cyclicDepSmells),
+                                     "Unhealthy_Inheritance_Hierarchy": int(longName in unhealthyInheritanceSmells)}
             printProgress(len(classSmells), totalClassCount)
 
         return classSmells
@@ -65,6 +65,10 @@ class ClassLevelSmellExtractor:
         return graph
 
     def getUnhealthyInheritanceSmells(self):
+        """
+        a parent class depends on one of its children
+        a class depends on a parent class and all its children
+        """
         smells = set()
         for classEnt in self.__classEnts:
             dependNames = self.__getDependNames(classEnt)
@@ -76,7 +80,7 @@ class ClassLevelSmellExtractor:
 
             for depend in classEnt.depends().keys():
                 dChildrenNames = self.__getChildrenNames(depend)
-                if dChildrenNames.issubset(dependNames):
+                if dChildrenNames and dChildrenNames.issubset(dependNames):
                     smells.add(classEnt.longname())
                     break
         return smells
