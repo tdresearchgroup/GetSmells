@@ -32,7 +32,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("sourcePaths", nargs="*", help="The path to the directory with a single project's code")
     parser.add_argument("-o", "--outputPath", help="The directory to output the CSVs with code smells")
+    parser.add_argument("-d", "--projDir", help="The directory contains all projects")
     args = parser.parse_args()
+    projDir = [f.path for f in os.scandir(args.projDir) if f.is_dir()]
 
-    main(args.sourcePaths, args.outputPath)
+    main(args.sourcePaths + projDir, args.outputPath)
 
