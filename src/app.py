@@ -1,7 +1,7 @@
 import csv
 import os
 import subprocess
-from copy import copy
+from copy import deepcopy
 
 from classLevel import ClassLevelSmellExtractor
 from methodLevel import MethodLevelSmellExtractor
@@ -84,7 +84,7 @@ class App:
         :param metrics: metrics. Format as {longName: {metric1: 1, metric2: 2}}
         :return: None
         """
-        data = copy(smells)
+        data = deepcopy(smells)
 
         # detail without metrics
         fieldnames = ['Name'] + [x for x in next(iter(smells.values()))]
@@ -114,7 +114,8 @@ class App:
         orderedColNames = ['Name'] + \
                           [x for x in next(iter(classSmells.values()))] + \
                           [x for x in next(iter(methodSmells.values()))] + \
-                          [x for x in next(iter(packageSmells.values()))]
+                          [x for x in next(iter(packageSmells.values()))] + \
+                          ["Total"]
 
         # integrate package smells
         for longName, smellDict in classSmells.items():
@@ -123,7 +124,6 @@ class App:
                 print(f"WARNING: class: {longName} with packageName: {packageName} is not in package smell dict")
             else:
                 smellDict.update(packageSmells[packageName])
-            smellDict["Name"] = longName
 
         # integrate method smells
         for longName, smellDict in methodSmells.items():
@@ -135,6 +135,10 @@ class App:
             else:
                 classSmellValue = classSmells[className]
                 classSmellValue.update({key: classSmellValue.get(key, 0) + smellDict[key] for key in smellDict})
+
+        for longName, smellDict in classSmells.items():
+            smellDict["Total"] = sum(smellDict.values())
+            smellDict["Name"] = longName
 
         self._outputCsvFile(classSmells.values(), outputCsvFileOverall, orderedColNames)
 
