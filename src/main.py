@@ -1,10 +1,11 @@
 import argparse
+import datetime
 import os.path
 
 from app import App
 
 
-def main(sourcePaths, outputPath, includeMetricsInCsv):
+def main(sourcePaths, outputPath):
     for sourcePath in sourcePaths:
         projectName = os.path.split(sourcePath)[-1]
         sourcePath = os.path.normcase(sourcePath)
@@ -17,12 +18,12 @@ def main(sourcePaths, outputPath, includeMetricsInCsv):
 
         app = App(sourcePath, outputPath)
 
-        print(f"Starting GetSmells on '{sourcePath}' (output at '{outputPath})\n")
+        print(f"{datetime.datetime.now()}Starting GetSmells on '{sourcePath}' (output at '{outputPath})\n")
         print(f"Step 1/2: Creating an Understand Project for '{projectName}'")
         app.analyzeCode()
 
         print(f"Step 2/2: Extracting code smells from metrics on '{projectName}'")
-        app.extractSmells(includeMetricsInCsv)
+        app.extractSmells()
 
         print("GetSmells complete!")
 
@@ -31,8 +32,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("sourcePaths", nargs="*", help="The path to the directory with a single project's code")
     parser.add_argument("-o", "--outputPath", help="The directory to output the CSVs with code smells")
-    parser.add_argument("-m", "--metricsInclude", action="store_true", help="Include metrics in CSV file")
     args = parser.parse_args()
 
-    main(args.sourcePaths, args.outputPath, args.metricsInclude)
+    main(args.sourcePaths, args.outputPath)
 

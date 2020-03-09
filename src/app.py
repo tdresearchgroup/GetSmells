@@ -1,6 +1,7 @@
 import csv
 import os
 import subprocess
+from copy import copy
 
 from classLevel import ClassLevelSmellExtractor
 from methodLevel import MethodLevelSmellExtractor
@@ -33,7 +34,7 @@ class App:
         self._runCmd([UND_PATH, 'settings', '-metrics', 'all', self.udbFile]),
         self._runCmd([UND_PATH, 'analyze', self.udbFile]),
 
-    def extractSmells(self, includeMetricsInCsv=True):
+    def extractSmells(self):
         outputDir = os.path.join(self.outputPath, self.projectName)
         outputCsvFileClasses = os.path.join(outputDir, "smells-classes.csv")
         outputCsvFileMethods = os.path.join(outputDir, "smells-methods.csv")
@@ -51,19 +52,19 @@ class App:
         methodSmells = methodSmellExtractor.getSmells()
         self._generateDetailReport(outputCsvFileMethods,
                                    methodSmells,
-                                   methodSmellExtractor.getMethodMetrics() if includeMetricsInCsv else {})
+                                   methodSmellExtractor.getMethodMetrics())
 
         classSmellExtractor = ClassLevelSmellExtractor(classEnts)
         classSmells = classSmellExtractor.getSmells(methodSmells)
         self._generateDetailReport(outputCsvFileClasses,
                                    classSmells,
-                                   classSmellExtractor.getClassMetrics() if includeMetricsInCsv else {})
+                                   classSmellExtractor.getClassMetrics())
 
         packageSmellExtractor = PackageSmellExtractor(classEnts)
         packageSmells = packageSmellExtractor.getSmells()
         self._generateDetailReport(outputCsvFilePackages,
                                    packageSmells,
-                                   packageSmellExtractor.getPackageMetrics() if includeMetricsInCsv else {})
+                                   packageSmellExtractor.getPackageMetrics())
 
         self._generateOverallReport(methodSmells, classSmells, packageSmells, outputCsvFileOverall)
 
@@ -76,17 +77,28 @@ class App:
         return smellSummary
 
     def _generateDetailReport(self, outputCsvFileName, smells, metrics):
-        fieldnames = ['Name'] + [x for x in next(iter(smells.values()))] + \
-                     ([x for x in next(iter(metrics.values()))] if metrics else [])
+        """
+        Generate 2 reports. One with metrics, one doesn't
+        :param outputCsvFileName: filename without metrics
+        :param smells: smell dict. Format as {longName: {smell1: 1, smell2: 2}}
+        :param metrics: metrics. Format as {longName: {metric1: 1, metric2: 2}}
+        :return: None
+        """
+        data = copy(smells)
 
-        with open(outputCsvFileName, 'w') as csvFile:
-            writer = csv.DictWriter(csvFile, fieldnames=fieldnames, delimiter=",")
-            writer.writeheader()
-            for longName, smellDict in smells.items():
-                row = {'Name': longName}
-                row.update(smellDict)
-                row.update(metrics[longName] if metrics else {})
-                writer.writerow(row)
+        # detail without metrics
+        fieldnames = ['Name'] + [x for x in next(iter(smells.values()))]
+        for longName, smellDict in data.items():
+            smellDict['Name'] = longName
+        self._outputCsvFile(data.values(), outputCsvFileName, fieldnames)
+
+        # detail with metrics
+        filename, extension = os.path.splitext(outputCsvFileName)
+        outputWithMetrics = filename + "-metrics" + extension
+        fieldnames += [x for x in next(iter(metrics.values()))]
+        for longName, smellDict in data.items():
+            smellDict.update(metrics[longName])
+        self._outputCsvFile(data.values(), outputWithMetrics, fieldnames)
 
     def _runCmd(self, args):
         args = args if IS_WINDOWS else " ".join(args)
