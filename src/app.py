@@ -81,7 +81,7 @@ class App:
         Generate 2 reports. One with metrics, one doesn't
         :param outputCsvFileName: filename without metrics
         :param smells: smell dict. Format as {longName: {smell1: 1, smell2: 2}}
-        :param metrics: metrics. Format as {longName: {metric1: 1, metric2: 2}}
+        :param metrics: metrics dict. Format as {longName: {metric1: 1, metric2: 2}}
         :return: None
         """
         data = deepcopy(smells)
