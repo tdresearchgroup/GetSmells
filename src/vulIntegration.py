@@ -26,6 +26,9 @@ def combineVul(vulDir, smellsOutDir):
         vulPath = os.path.join(vulDir, f"{project}.csv")
         outPath = os.path.join(smellsOutDir, f"{project}-{version}.csv")
 
+        if not os.path.exists(vulPath):
+            print(f'WARNING: Vulnerability data file for {project} does not exist. Skip.')
+            continue
         with open(outPath, 'w') as out, open(smellPath, 'r') as smellIn, open(vulPath, 'r') as vulIn:
 
             smellReader = csv.DictReader(smellIn)
