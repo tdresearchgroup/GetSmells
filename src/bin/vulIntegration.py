@@ -21,10 +21,14 @@ def combineVul(vulDir, smellsOutDir):
     print("Start combining vulnerability data")
     overalls = _getSmellOveralls(smellsOutDir)
 
+    outDir = os.path.join(smellsOutDir, "smell&vul")
+    if not os.path.exists(outDir):
+        os.makedirs(outDir)
+
     for smellPath in overalls:
         project, version = _getProjInfo(smellPath)
         vulPath = os.path.join(vulDir, f"{project}.csv")
-        outPath = os.path.join(smellsOutDir, f"{project}-{version}.csv")
+        outPath = os.path.join(outDir, f"{project}-{version}.csv")
 
         if not os.path.exists(vulPath):
             print(f'WARNING: Vulnerability data file for {project} does not exist. Skip.')
@@ -35,7 +39,7 @@ def combineVul(vulDir, smellsOutDir):
             vulReader = csv.DictReader(vulIn)
             updatedSmellDict = _getUpdatedSmellDict(smellReader, vulReader, project, version)
 
-            columnNames = smellReader.fieldnames + ['Vulnerability']
+            columnNames = ['version'] + smellReader.fieldnames + ['Vulnerability']
             writer = csv.DictWriter(out, fieldnames=columnNames, delimiter=",")
             writer.writeheader()
             writer.writerows(updatedSmellDict.values())
@@ -44,6 +48,9 @@ def combineVul(vulDir, smellsOutDir):
 
 def _getUpdatedSmellDict(smellReader, vulReader, project, version):
     smells = {x['Name']: x for x in smellReader}
+    for rows in smells.values():
+        rows['version'] = version
+
     for vulRow in vulReader:
         if vulRow['version'] == version:
             if vulRow['class'] in smells:
