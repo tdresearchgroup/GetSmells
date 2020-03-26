@@ -1,8 +1,7 @@
 # 0. Instruction
 
 GetSmells extracts code smells from Java source code using the 
-[Understand API](https://scitools.com/support/understand-api-overview/). This version edited by Chris Marcello
-during research at Colby College.
+[Understand API](https://scitools.com/support/understand-api-overview/). 
 
 # 1. Prerequisites
 GetSmells is written to work on either Windows or MacOS (tested on Windows 7 and MacOS 10.12)
