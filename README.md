@@ -48,7 +48,8 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 **Complex Class (Class-Level)**
 - CMC (Complex Method Count) > 1
 
-**Long Class (Class-Level)**
+**Large Class (Class-Level)**
+- *On the diffuseness and the impact on maintainability of code smells: a large scale empirical investigation*
 - LOC (Lines of Code) > mean of system
 
 **Refused Bequest (Class-Level)**

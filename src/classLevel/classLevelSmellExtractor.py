@@ -6,8 +6,8 @@ ONE_THIRD = 1/3
 HIGH_LCOM = 73 #0.725
 
 #for use with PMD style data class methodology
-HIGH_NOPA = 5
-VERY_HIGH_NOPA = 3
+HIGH_NOPA = 3
+VERY_HIGH_NOPA = 5
 HIGH_WMC = 30
 VERY_HIGH_WMC = 45
 
@@ -40,7 +40,7 @@ class ClassLevelSmellExtractor:
             classSmells[longName] = {"God_Class": int(self.isGodClass(metrics, veryHighWMC)),
                                      "Lazy_Class": int(self.isLazyClass(metrics, firstQuatileLOC)),
                                      "Complex_Class": int(self.isComplexClass(metrics)),
-                                     "Long_Class": int(self.isLongClass(metrics, meanLOC)),
+                                     "Large_Class": int(self.isLargeClass(metrics, meanLOC)),
                                      "Refused_Request": int(self.isRefusedBequest(metrics)),
                                      "Data_Class": int(self.isDataClass(metrics)),
                                      "Feature_Envy": int(self.isFeatureEnvy(metrics)),
@@ -116,7 +116,7 @@ class ClassLevelSmellExtractor:
     def isComplexClass(self, metrics):
         return metrics["CMC"] >= 1
 
-    def isLongClass(self, metrics, meanLOC):
+    def isLargeClass(self, metrics, meanLOC):
         return metrics["LOC"] > meanLOC
 
     def isRefusedBequest(self, metrics):
