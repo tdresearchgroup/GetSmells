@@ -1,8 +1,7 @@
 # 0. Instruction
 
 GetSmells extracts code smells from Java source code using the 
-[Understand API](https://scitools.com/support/understand-api-overview/). This version edited by Chris Marcello
-during research at Colby College.
+[Understand API](https://scitools.com/support/understand-api-overview/). 
 
 # 1. Prerequisites
 GetSmells is written to work on either Windows or MacOS (tested on Windows 7 and MacOS 10.12)
@@ -60,9 +59,6 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 - WMC (Weighted Method Count) <= 30 and NOPA (Number of Public Accesses) >= 3 or
 - WMC (Weighted Method Count) <= 45 and NOPA (Number of Public Accesses) >= 5
 
-**Feature Envy (Class-Level)**
-- LCOM (Lack of Cohesion of Methods) >= High (73%)
-
 **Hub-Like Dependency**
 - *Automatic Detection of Instability Architectural Smells*
 - ingoing dependencies > median
@@ -86,6 +82,9 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 - NBM (Number of Brain Methods) > 1 ^ LOC (Line Of Code) >= 197 OR NBM (Number of Brain Methods) = 1 ^ LOC (Line Of Code) >= 2\*197 ^ WMC (Weighted Method Count) >= 2\*47
 
 ## 3.2 Method Level Smells
+
+**Feature Envy (Method-Level)**
+- LCOM (Lack of Cohesion of Methods) >= High (73%)
 
 **Long Method (Method-Level)**
 - LOC (Lines of Code) > 20
