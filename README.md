@@ -48,10 +48,10 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 - CMC (Complex Method Count) > 1
 
 **Large Class (Class-Level)**
-- *On the diffuseness and the impact on maintainability of code smells: a large scale empirical investigation*
 - LOC (Lines of Code) > mean of system
 
 **Refused Bequest (Class-Level)**
+- *On the diffuseness and the impact on maintainability of code smells: a large scale empirical investigation*
 - Child Class overrides more than half of its parent class's methods, calculated by:
 - LMC (Local Method Count) > 1/2 * TMC (Total Method Count)
 
