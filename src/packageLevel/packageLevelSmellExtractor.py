@@ -4,8 +4,8 @@ from packageLevel.packageLevelMetricsUtil import PackageLevelMetricsUtil
 
 class PackageSmellExtractor:
 
-    def __init__(self, classEnts):
-        self.__packageMetrics = PackageLevelMetricsUtil(classEnts).generateMetrics()
+    def __init__(self, classEnts, clsPkMap):
+        self.__packageMetrics = PackageLevelMetricsUtil(classEnts, clsPkMap).generateMetrics()
 
     def getCyclicDepSmells(self, pkDependsOnPk):
         return getCyclicVertex(pkDependsOnPk)

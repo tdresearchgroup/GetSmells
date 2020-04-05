@@ -45,8 +45,10 @@ class App:
             os.makedirs(outputDir)
 
         db = understand.open(self.udbFile)
-        classEnts = db.ents("Class ~Unresolved ~Unknown")
+        classEnts = db.ents("Class ~Unresolved ~Unknown ~Anonymous ~Enum")
         methodEnts = db.ents("Method ~Unresolved ~Unknown")
+
+        clsPkMap = self._getClsPkMap(classEnts)
 
         methodSmellExtractor = MethodLevelSmellExtractor(methodEnts)
         methodSmells = methodSmellExtractor.getSmells()
@@ -60,13 +62,13 @@ class App:
                                    classSmells,
                                    classSmellExtractor.getClassMetrics())
 
-        packageSmellExtractor = PackageSmellExtractor(classEnts)
+        packageSmellExtractor = PackageSmellExtractor(classEnts, clsPkMap)
         packageSmells = packageSmellExtractor.getSmells()
         self._generateDetailReport(outputCsvFilePackages,
                                    packageSmells,
                                    packageSmellExtractor.getPackageMetrics())
 
-        self._generateOverallReport(methodSmells, classSmells, packageSmells, outputCsvFileOverall)
+        self._generateOverallReport(methodSmells, classSmells, packageSmells, clsPkMap, outputCsvFileOverall)
 
     def _getSmellSummary(self, extractedSmells):
         smellSummary = {x: set() for x in next(iter(extractedSmells.values()))}
@@ -107,19 +109,17 @@ class App:
     def _getClassName(self, methodName):
         return '.'.join(methodName.split('.')[:-1])
 
-    def _getPackageName(self, className):
-        return '.'.join(className.split('.')[:-1])
-
-    def _generateOverallReport(self, methodSmells, classSmells, packageSmells, outputCsvFileOverall):
+    def _generateOverallReport(self, methodSmells, classSmells, packageSmells, clsPkMap, outputCsvFileOverall):
         orderedColNames = ['Name'] + \
                           [x for x in next(iter(classSmells.values()))] + \
                           [x for x in next(iter(methodSmells.values()))] + \
                           [x for x in next(iter(packageSmells.values()))] + \
-                          ["Total"]
+                          ["Total"] + \
+                          ["Distinct_Count"]
 
         # integrate package smells
         for longName, smellDict in classSmells.items():
-            packageName = self._getPackageName(longName)
+            packageName = clsPkMap[longName]
             if packageName not in packageSmells:
                 print(f"WARNING: class: {longName} with packageName: {packageName} is not in package smell dict")
             else:
@@ -138,6 +138,7 @@ class App:
 
         for longName, smellDict in classSmells.items():
             smellDict["Total"] = sum(smellDict.values())
+            smellDict["Distinct_Count"] = len([1 for x in smellDict.values() if x > 0])
             smellDict["Name"] = longName
 
         self._outputCsvFile(classSmells.values(), outputCsvFileOverall, orderedColNames)
@@ -147,3 +148,23 @@ class App:
             writer = csv.DictWriter(csvFile, fieldnames=orderedColNames, delimiter=",")
             writer.writeheader()
             writer.writerows(data)
+
+    def _getClsPkMap(self, classEnts):
+        def getPkName(clsEnt):
+            pkRef = clsEnt.ref("Containin", "Package")
+            otherRef = clsEnt.ref("Definein")
+            if pkRef:
+                return pkRef.ent().longname()
+            if otherRef:
+                return getPkName(otherRef.ent())
+            return ""
+
+        pkClsDict = {}
+        for classEnt in classEnts:
+            pkName = getPkName(classEnt)
+            if pkName:
+                pkClsDict[classEnt.longname()] = pkName
+            else:
+                print(f"WARNING: class: {classEnt.longname()} not in any package")
+        return pkClsDict
+

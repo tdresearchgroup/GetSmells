@@ -18,7 +18,7 @@ def main(sourcePaths, outputPath):
 
         app = App(sourcePath, outputPath)
 
-        print(f"{datetime.datetime.now()}Starting GetSmells on '{sourcePath}' (output at '{outputPath})\n")
+        print(f"{datetime.datetime.now()}\nStarting GetSmells on '{sourcePath}' (output at '{outputPath})\n")
         print(f"Step 1/2: Creating an Understand Project for '{projectName}'")
         app.analyzeCode()
 
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     parser.add_argument("-o", "--outputPath", help="The directory to output the CSVs with code smells")
     parser.add_argument("-d", "--projDir", help="The directory contains all projects")
     args = parser.parse_args()
-    projDir = [f.path for f in os.scandir(args.projDir) if f.is_dir()]
+    projDir = [f.path for f in os.scandir(args.projDir) if f.is_dir()] if args.projDir else []
 
     main(args.sourcePaths + projDir, args.outputPath)
 
