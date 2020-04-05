@@ -87,7 +87,7 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 - LCOM (Lack of Cohesion of Methods) >= High (73%)
 
 **Long Method (Method-Level)**
-- LOC (Lines of Code) > 20
+- LOC (Lines of Code) > mean of system (revert Chris change)
 
 **Long Parameter List (Method-Level)**
 - Inputs > mean of system
