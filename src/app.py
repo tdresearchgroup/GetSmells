@@ -10,14 +10,15 @@ from src import IS_WINDOWS, UND_PATH
 
 import understand
 
+DEFAULT_OUTPUT = os.path.join(os.path.dirname(os.path.realpath(__file__)), "getsmells-output")
+
 
 class App:
 
     def __init__(self, sourcePath, outputPath):
         self.projectName = os.path.split(sourcePath)[-1]
         self.sourcePath = os.path.normcase(sourcePath)
-        self.outputPath = os.path.normcase(outputPath or
-                                           os.path.join(os.path.dirname(os.path.realpath(__file__)), "getsmells-output"))
+        self.outputPath = os.path.normcase(os.path.join(outputPath or DEFAULT_OUTPUT, "smells"))
         self.udbFile = os.path.join(outputPath, "udbs", self.projectName + ".udb")
 
     def analyzeCode(self):

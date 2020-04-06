@@ -15,7 +15,7 @@ def combineVul(vulDir, smellsOutDir):
     Each vulnerability file should be named as [proj].csv and should contain at least "name" and "version" columns
 
     :param vulDir: the directory contains all vulnerability data.
-    :param smellsOutDir: the directory contains all smell outputs
+    :param smellsOutDir: the directory contains "smells" dir
     :return: None
     """
     print("Start combining vulnerability data")
@@ -52,7 +52,7 @@ def _getUpdatedSmellDict(smellReader, vulReader, project, version):
         rows['version'] = version
 
     for vulRow in vulReader:
-        if vulRow['version'] == version:
+        if vulRow['version'].startswith(version):
             if vulRow['class'] in smells:
                 smells[vulRow['class']]['Vulnerability'] = smells[vulRow['class']].get('Vulnerability', 0) + 1
             else:

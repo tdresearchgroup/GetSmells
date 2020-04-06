@@ -4,13 +4,14 @@ import os.path
 
 from app import App
 
+DEFAULT_OUTPUT = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "getsmells-output")
+
 
 def main(sourcePaths, outputPath):
     for sourcePath in sourcePaths:
         projectName = os.path.split(sourcePath)[-1]
         sourcePath = os.path.normcase(sourcePath)
-        outputPath = os.path.normcase(outputPath or
-                                      os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "getsmells-output"))
+        outputPath = os.path.normcase(outputPath or DEFAULT_OUTPUT)
 
         if not os.path.isdir(sourcePath):
             print("Error: The specified source path either does not exist or is not a directory")
