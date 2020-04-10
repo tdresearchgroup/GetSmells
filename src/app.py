@@ -139,7 +139,7 @@ class App:
 
         for longName, smellDict in classSmells.items():
             smellDict["Total"] = sum(smellDict.values())
-            smellDict["Distinct_Count"] = len([1 for x in smellDict.values() if x > 0])
+            smellDict["Distinct_Count"] = len([1 for x in smellDict.values() if x > 0]) - bool(smellDict["Total"])
             smellDict["Name"] = longName
 
         self._outputCsvFile(classSmells.values(), outputCsvFileOverall, orderedColNames)

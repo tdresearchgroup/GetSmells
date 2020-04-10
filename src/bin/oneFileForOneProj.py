@@ -14,7 +14,7 @@ def main(projects, fileDir):
     for project in projects:
         print(f"Start {project} version combination...")
         files = [os.path.join(fileDir, f) for f in os.listdir(fileDir)
-                 if os.path.isfile(os.path.join(fileDir, f)) and project in f]
+                 if os.path.isfile(os.path.join(fileDir, f)) and project in f and 'allversions' not in f]
 
         if not files:
             print(f"WARNING: cannot find csv file for {project}")

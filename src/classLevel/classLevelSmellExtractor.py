@@ -33,7 +33,7 @@ class ClassLevelSmellExtractor:
 
         for methodLongName, smellDict in methodSmells.items():
             className = self.__methodName2className(methodLongName)
-            if smellDict["Brain_Method"]:
+            if smellDict["Brain_Method"] and className in self.__classMetrics:
                 self.__classMetrics[className]["numberOfBrainMethod"] += 1
 
         for longName, metrics in self.__classMetrics.items():
