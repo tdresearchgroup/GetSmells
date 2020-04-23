@@ -16,18 +16,7 @@ bit-ness of your Understand install (developed using Python 3.6 64-bit)
   * [NumPy](https://docs.scipy.org/doc/numpy/index.html): `pip3 install numpy`
 
 # 2. Usage
-`python3 getsmells.py [sourcePath] [outputPath (optional)] [no metrics flag (optional)]`   
-
-**Example**   
-`python3 getsmells.py c:/Users/you/path/to/code c:/Users/you/output -nm`   
-
-**Parameters**   
-`sourcePath`: The path to the directory with a single project's code   
-`outputPath`: The directory to output the CSVs with code smells (one for class-level and one for method-level), the debug
- output (log), the Understand Project, the list of classes/methods with each smell (default: create a new subdirectory
- in the current directory)
- 
- `-nm`: If this flag is used the output csv will not contain the metrics used to determine the code smells. Allows for cleaner csv outputs and a slightly faster runtime.
+For consistency, please refer documentation in main.py 
 
 
 # 3. Smells
@@ -122,12 +111,13 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 ## Files
 ```
 getsmells
-├── test
-│   ├── resource: self created project for testing
-│   ├── UnitTest.py: unit tests
+├── bin: some tools for data integration. Usages are in each py files
+│   ├── androidVulProcessor.py: The motivation is that original Android vulnerability data only talks about file instead of classes.
+│   ├── oneFileForOneProj.py: After vulIntegration, combining all versions together and generate one file per project
+│   ├── vulIntegration.py: After main, for each [proj]-[version]-xxx-overall.csv, generate csv file that maps the counts of vulnerabilities and smells together.
 ├── src
 │   ├── app.py: real application
-│   ├── main.py: the entry point of this application
+│   ├── main.py: the entry point for user
 │   ├── common
 │   │   ├── dfs.py: Perform deep first search
 │   │   ├── metricsUtil.py: Defines shared functions for [class|method]LevelSmellMetricsUtil.py

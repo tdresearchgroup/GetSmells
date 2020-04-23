@@ -44,7 +44,7 @@ def main(udbFile, rawData):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="python3 androidVulProcessor xxx/android-6.0.0-r41.udb xxx/android-6.0.0.csv")
     parser.add_argument("udbFile", help="The path to the Android udb file")
     parser.add_argument("rawData", help="The path to the Android data file containing Files column.")
     args = parser.parse_args()

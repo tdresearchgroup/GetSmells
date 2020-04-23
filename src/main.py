@@ -30,10 +30,12 @@ def main(sourcePaths, outputPath):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="Usage: python3 main.py -d xxx/projects/android\n"
+                                                 "Or usage: python3 main.py xx/android6 xx/android7 xx/andoid8\n"
+                                                 "Or usage: python3 main.py -d xxx/projects/android xx/tomcat6.0.1 xxx/tomcat6.0.2")
     parser.add_argument("sourcePaths", nargs="*", help="The path to the directory with a single project's code")
     parser.add_argument("-o", "--outputPath", help="The directory to output the CSVs with code smells")
-    parser.add_argument("-d", "--projDir", help="The directory contains all projects")
+    parser.add_argument("-d", "--projDir", help="The direct parent directory contains all projects")
     args = parser.parse_args()
     projDir = [f.path for f in os.scandir(args.projDir) if f.is_dir()] if args.projDir else []
 
