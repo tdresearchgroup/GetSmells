@@ -1,30 +1,94 @@
 # 0. Instruction
+This tool do 2 things:
 
-GetSmells extracts code smells from Java source code using the 
-[Understand API](https://scitools.com/support/understand-api-overview/). 
+1. Extracts code smells from Java source code using the [Understand API](https://scitools.com/support/understand-api-overview/)
+2. Data process after extracting code smells
 
 # 1. Prerequisites
-GetSmells is written to work on either Windows or MacOS (tested on Windows 7 and MacOS 10.12)
-* Understand: You must have [Understand](https://scitools.com/features/) installed locally to run the script.
+GetSmells is written to work on either Windows or MacOS (tested on Windows 7 and MacOS 10.14)
+
+1. Understand: You must have [Understand](https://scitools.com/features/) installed locally to run the script.
   * It should be installed in the default location for your OS (`C:\Program Files\SciTools\` for Windows or
 `/Applications/Understand.app` on MacOS); if it is not in the default location, you can modify the paths at 
 the top of both `understandapi.py` and `understandcli.py`.
   * You can request 1-year educational license for Understand [here](https://scitools.com/student/)
-* Python 3.4+: The script is written for Python 3.4+ and, on Windows, your 32-bit/64-bit version of Python 3 should match the 
-bit-ness of your Understand install (developed using Python 3.6 64-bit)
-* Python Libraries
-  * [NumPy](https://docs.scipy.org/doc/numpy/index.html): `pip3 install numpy`
+2. Python: 
+  * Python 3.6+ is required 
+  * [NumPy](https://docs.scipy.org/doc/numpy/index.html) is required: `pip3 install numpy`
 
-# 2. Usage
-For consistency, please refer documentation in main.py 
+# 2. Project Structure
+```
+getsmells
+├── bin: some tools for data integration.
+│   ├── mapFileToClass.py: The motivation is that original vulnerability data only talks about file instead of classes
+│   ├── oneFileForOneProj.py: After vulIntegration.py, we got each file per project version. This script combines all versions together and generate one file per project
+│   ├── vulIntegration.py: After main.py, this script combines vulnerabilities and smells together.
+├── src
+│   ├── app.py: real application
+│   ├── main.py: API for user
+│   ├── common
+│   │   ├── dfs.py: Perform deep first search
+│   │   ├── metricsUtil.py: Defines shared functions for [class|method]LevelSmellMetricsUtil.py
+│   │   ├── statisticUtil.py: Responsible for statistics
+│   │   └── __init__.py
+│   ├── classLevel
+│   │   ├── classLevelMetricsUtil.py
+│   │   ├── classLevelSmellExtractor.py
+│   │   ├── __init__.py
+│   ├── methodLevel
+│   │   ├── methodLevelMetricsUtil.py
+│   │   ├── methodLevelSmellExtractor.py
+│   │   ├── __init__.py
+│   ├── packageLevel
+│   │   ├── packageLevelSmellExtractor.py
+│   │   ├── packageLevelSmellExtractor.py
+├── README.md
+├── .pylintrc
+└── .gitignore 
+``` 
+
+# 3. Usage
+Three steps to use it
+1. Extract smells from source code
+```
+// a. We can list all project directories one by one
+python3 main.py xx/android6 xx/android7 ...
+
+// b. We can provide -d parameter to indicate the direct parent directory contains all projects (but only one directory)
+// For example, if we put all android6, android7, android8 into a directory called xxx/android
+python3 main.py -d xxx/android
+
+// c. We can combine a and b together
+python3 main.py -d xxx/android xxx/tomcat1 xxx/tomcat2 xxx/tomcat3
+
+// d. We can specify output path for a. b. c (default in getsmells/getsmell-output)
+python3 main.py -o xxx/output blablabla..
+```
+Data will be output in `xxx/getsmells/getsmell-output/smells/`
+
+2. Combine smells with vulnerabilities
+```
+// should specify the output path the same as in step1 and vulnerability data directory
+python3 vulIntegration.py -s xxx/getsmells-output -v xxx/vulData
+```
+Data will be output in `xxx/getsmells/getsmells-output/smell&vul/`
+
+3. Integrate all versions of a project into a single file for analysis
+```
+// Specify a list of projects to integrate and the output path from step2
+python3 oneFileForOneProj.py apache-tomcat apache-cxf android -d xxx/getsmells/getsmells-output/smell&vul
+```
+Data will be output in `xxx/getsmells/getsmells-output/smell&vul/{project}-allversions.csv`
+
+4. The reason to separate to 3 steps is step 1 takes tooooo much time, I try to make all statistics into Step2/3. 
 
 
-# 3. Smells
+# 4. Smells included
 Some extracted smells are based off the criteria outlined in [Object-Oriented Metrics in Practice](http://www.springer.com/us/book/9783540244295) by
  [Michele Lanza](http://www.inf.usi.ch/lanza/index.html) and [Radu Marinescu](http://loose.upt.ro/reengineering/research/), while others are described
  in [On the diffuseness and the impact on maintainability of code smells: a large scale empirical investigation](https://link.springer.com/article/10.1007/s10664-017-9535-z).
 
-## 3.1 Class Level Smells
+## 4.1 Class Level Smells
 **God Class (Class-Level)**
 - ATFD (Access to Foreign Data) > Few(4) 
 - WMC (Weighted Method Count) >= Very High(85%) 
@@ -70,7 +134,7 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 - TCC (Tight Class Cohesion) < 0.5
 - NBM (Number of Brain Methods) > 1 ^ LOC (Line Of Code) >= 197 OR NBM (Number of Brain Methods) = 1 ^ LOC (Line Of Code) >= 2\*197 ^ WMC (Weighted Method Count) >= 2\*47
 
-## 3.2 Method Level Smells
+## 4.2 Method Level Smells
 
 **Feature Envy (Method-Level)**
 - LCOM (Lack of Cohesion of Methods) >= High (73%)
@@ -95,7 +159,7 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 - MAXNESTING (Maximum Nesting Level) >= 5
 - NOAV (Number of Accessed Variables) >8
 
-## 3.3 Package Level Smells
+## 4.3 Package Level Smells
 **Unstable Dependency**
 - *Automatic Detection of Instability Architectural Smells*
     1. obtaining from the graph all the dependencies between packages
@@ -108,44 +172,9 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 **Cyclic Dependency**
 - *Automatic Detection of Instability Architectural Smells*
 
-## Files
-```
-getsmells
-├── bin: some tools for data integration. Usages are in each py files
-│   ├── androidVulProcessor.py: The motivation is that original Android vulnerability data only talks about file instead of classes.
-│   ├── oneFileForOneProj.py: After vulIntegration, combining all versions together and generate one file per project
-│   ├── vulIntegration.py: After main, for each [proj]-[version]-xxx-overall.csv, generate csv file that maps the counts of vulnerabilities and smells together.
-├── src
-│   ├── app.py: real application
-│   ├── main.py: the entry point for user
-│   ├── common
-│   │   ├── dfs.py: Perform deep first search
-│   │   ├── metricsUtil.py: Defines shared functions for [class|method]LevelSmellMetricsUtil.py
-│   │   ├── statisticUtil.py: Responsible for statistics
-│   │   └── __init__.py
-│   ├── classLevel
-│   │   ├── classLevelMetricsUtil.py
-│   │   ├── classLevelSmellExtractor.py
-│   │   ├── __init__.py
-│   ├── methodLevel
-│   │   ├── methodLevelMetricsUtil.py
-│   │   ├── methodLevelSmellExtractor.py
-│   │   ├── __init__.py
-│   ├── packageLevel
-│   │   ├── packageLevelSmellExtractor.py
-│   │   ├── packageLevelSmellExtractor.py
-├── README.md
-├── .pylintrc
-└── .gitignore 
-``` 
-
-
-## Useful Links
-**Understand API Documentation**   
-* https://scitools.com/sup/api-2/  
-* https://scitools.com/documents/manuals/python/understand.html  
-* https://scitools.com/documents/manuals/html/understand_api/kindApp121.html  
-* https://scitools.com/documents/manuals/html/understand_api/kindApp158.html   
-
-**Understand CLI Documentation**
-* https://scitools.com/support/commandline/   
+# 5. Useful Links
+* [Understand Overview](https://scitools.com/sup/api-2/)
+* [Understand Python API](https://scitools.com/documents/manuals/python/understand.html)
+* [Understand Reference Kinds](https://scitools.com/documents/manuals/perl/#java_reference_kinds)
+* [Understand Entity Kinds](https://scitools.com/documents/manuals/perl/#java_entity_kinds)
+* [Command Line Interface](https://scitools.com/support/commandline/)
