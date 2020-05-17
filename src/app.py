@@ -10,16 +10,19 @@ from src import IS_WINDOWS, UND_PATH
 
 import understand
 
-DEFAULT_OUTPUT = os.path.join(os.path.dirname(os.path.realpath(__file__)), "getsmells-output")
-
 
 class App:
 
-    def __init__(self, sourcePath, outputPath):
-        self.projectName = os.path.split(sourcePath)[-1]
+    def __init__(self, sourcePath, outputPath, projName, version):
+        self.version = version
+        self.projName = projName
+
+        self.sourceDirName = os.path.split(sourcePath)[-1]
         self.sourcePath = os.path.normcase(sourcePath)
-        self.outputPath = os.path.normcase(os.path.join(outputPath or DEFAULT_OUTPUT, "smells"))
-        self.udbFile = os.path.join(outputPath, "udbs", self.projectName + ".udb")
+
+        self.outputDir = os.path.join(outputPath, "smells", self.projName, self.sourceDirName)
+        self.outputOverall = os.path.join(outputPath, "smells", self.projName + ".csv")
+        self.udbFile = os.path.join(outputPath, "udbs", projName, self.sourceDirName + ".udb")
 
     def analyzeCode(self):
         if os.path.isfile(self.udbFile):
@@ -36,14 +39,14 @@ class App:
         self._runCmd([UND_PATH, 'analyze', self.udbFile]),
 
     def extractSmells(self):
-        outputDir = os.path.join(self.outputPath, self.projectName)
-        outputCsvFileClasses = os.path.join(outputDir, "smells-classes.csv")
-        outputCsvFileMethods = os.path.join(outputDir, "smells-methods.csv")
-        outputCsvFilePackages = os.path.join(outputDir, "smells-packages.csv")
-        outputCsvFileOverall = os.path.join(outputDir, self.projectName + "-overall.csv")
+        outputCsvFileClasses = os.path.join(self.outputDir, "smells-classes.csv")
+        outputCsvFileMethods = os.path.join(self.outputDir, "smells-methods.csv")
+        outputCsvFilePackages = os.path.join(self.outputDir, "smells-packages.csv")
+        outputCsvFileAll = os.path.join(self.outputDir, "smells-all.csv")
 
-        if not os.path.exists(outputDir):
-            os.makedirs(outputDir)
+
+        if not os.path.exists(self.outputDir):
+            os.makedirs(self.outputDir, exist_ok=True)
 
         db = understand.open(self.udbFile)
         classEnts = db.ents("Class ~Unresolved ~Unknown ~Anonymous ~Enum")
@@ -69,15 +72,7 @@ class App:
                                    packageSmells,
                                    packageSmellExtractor.getPackageMetrics())
 
-        self._generateOverallReport(methodSmells, classSmells, packageSmells, clsPkMap, outputCsvFileOverall)
-
-    def _getSmellSummary(self, extractedSmells):
-        smellSummary = {x: set() for x in next(iter(extractedSmells.values()))}
-        for entName, smellDict in extractedSmells.items():
-            for smellName, isSmell in smellDict.items():
-                if isSmell:
-                    smellSummary[smellName].add(entName)
-        return smellSummary
+        self._generateOverallReport(methodSmells, classSmells, packageSmells, clsPkMap, outputCsvFileAll)
 
     def _generateDetailReport(self, outputCsvFileName, smells, metrics):
         """
@@ -110,15 +105,7 @@ class App:
     def _getClassName(self, methodName):
         return '.'.join(methodName.split('.')[:-1])
 
-    def _generateOverallReport(self, methodSmells, classSmells, packageSmells, clsPkMap, outputCsvFileOverall):
-        orderedColNames = ['Name'] + \
-                          [x for x in next(iter(classSmells.values()))] + \
-                          [x for x in next(iter(methodSmells.values()))] + \
-                          [x for x in next(iter(packageSmells.values()))] + \
-                          ["Total"] + \
-                          ["Distinct_Count"]
-
-        # integrate package smells
+    def _integratePkgSmells(self, classSmells, clsPkMap, packageSmells):
         for longName, smellDict in classSmells.items():
             packageName = clsPkMap[longName]
             if packageName not in packageSmells:
@@ -126,7 +113,7 @@ class App:
             else:
                 smellDict.update(packageSmells[packageName])
 
-        # integrate method smells
+    def _integrateMethodSmells(self, methodSmells, classSmells):
         for longName, smellDict in methodSmells.items():
             className = self._getClassName(longName)
             if className not in classSmells:
@@ -137,18 +124,41 @@ class App:
                 classSmellValue = classSmells[className]
                 classSmellValue.update({key: classSmellValue.get(key, 0) + smellDict[key] for key in smellDict})
 
+    def _addAdditionFields(self, classSmells):
         for longName, smellDict in classSmells.items():
             smellDict["Total"] = sum(smellDict.values())
             smellDict["Distinct_Count"] = len([1 for x in smellDict.values() if x > 0]) - bool(smellDict["Total"])
             smellDict["Name"] = longName
+            smellDict["Version"] = self.version
+
+
+    def _generateOverallReport(self, methodSmells, classSmells, packageSmells, clsPkMap, outputCsvFileOverall):
+        orderedColNames = ['Name', 'Version'] + \
+                          [x for x in next(iter(classSmells.values()))] + \
+                          [x for x in next(iter(methodSmells.values()))] + \
+                          [x for x in next(iter(packageSmells.values()))] + \
+                          ["Total"] + \
+                          ["Distinct_Count"]
+
+        self._integratePkgSmells(classSmells, clsPkMap, packageSmells)
+
+        self._integrateMethodSmells(methodSmells, classSmells)
+
+        self._addAdditionFields(classSmells)
 
         self._outputCsvFile(classSmells.values(), outputCsvFileOverall, orderedColNames)
+        self._outputCsvFile(classSmells.values(), self.outputOverall, orderedColNames)
 
     def _outputCsvFile(self, data, fileName, orderedColNames):
-        with open(fileName, 'w') as csvFile:
-            writer = csv.DictWriter(csvFile, fieldnames=orderedColNames, delimiter=",")
-            writer.writeheader()
-            writer.writerows(data)
+        if os.path.isfile(fileName):
+            with open(fileName, 'a') as csvFile:
+                writer = csv.DictWriter(csvFile, fieldnames=orderedColNames, delimiter=",")
+                writer.writerows(data)
+        else:
+            with open(fileName, 'w') as csvFile:
+                writer = csv.DictWriter(csvFile, fieldnames=orderedColNames, delimiter=",")
+                writer.writeheader()
+                writer.writerows(data)
 
     def _getClsPkMap(self, classEnts):
         def getPkName(clsEnt):

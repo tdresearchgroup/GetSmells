@@ -1,43 +1,56 @@
-import argparse
 import datetime
 import os.path
+import configparser
+from src import DEFAULT_OUTPUT
+import shutil
 
 from app import App
 
-DEFAULT_OUTPUT = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "getsmells-output")
+
+def main(nameDirPairs):
+    print(f"{datetime.datetime.now()}\nStarting GetSmells, output at '{DEFAULT_OUTPUT})\n")
+
+    for projName, projDir in nameDirPairs:
+        cleanSmellOutput(projName)
+        projDirs = [f.path for f in os.scandir(projDir) if f.is_dir()] if projDir else []
+        for sourcePath in projDirs:
+            version = getVersion(os.path.split(sourcePath)[-1], projName)
+
+            if not os.path.isdir(sourcePath):
+                print("Error: The specified source path either does not exist or is not a directory")
+                continue
+
+            print(f"{datetime.datetime.now()}\nStarting GetSmells on '{projName}' with version '{version}'\n")
+            app = App(sourcePath, DEFAULT_OUTPUT, projName, version)
+
+            print(f"Step 1/2: Creating an Understand Project'")
+            app.analyzeCode()
+
+            print(f"Step 2/2: Extracting code smells from metrics'")
+            app.extractSmells()
+
+            print("GetSmells complete!")
 
 
-def main(sourcePaths, outputPath):
-    for sourcePath in sourcePaths:
-        projectName = os.path.split(sourcePath)[-1]
-        sourcePath = os.path.normcase(sourcePath)
-        outputPath = os.path.normcase(outputPath or DEFAULT_OUTPUT)
+def cleanSmellOutput(projName):
+    outputDir = f'{DEFAULT_OUTPUT}/smells/{projName}'
+    outputOverall = f'{DEFAULT_OUTPUT}/smells/{projName}.csv'
 
-        if not os.path.isdir(sourcePath):
-            print("Error: The specified source path either does not exist or is not a directory")
-            continue
+    print(f"Clean existing smell output at '{outputDir}' & {outputOverall}.csv)\n")
+    shutil.rmtree(outputDir, ignore_errors=True)
+    if os.path.isfile(outputOverall):
+        os.remove(outputOverall)
 
-        app = App(sourcePath, outputPath)
 
-        print(f"{datetime.datetime.now()}\nStarting GetSmells on '{sourcePath}' (output at '{outputPath})\n")
-        print(f"Step 1/2: Creating an Understand Project for '{projectName}'")
-        app.analyzeCode()
-
-        print(f"Step 2/2: Extracting code smells from metrics on '{projectName}'")
-        app.extractSmells()
-
-        print("GetSmells complete!")
+def getVersion(filename, projectName):
+    removeProjName = filename.replace(projectName + "-", "")
+    version = "-".join(removeProjName.split("-")[:-1])
+    return version
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Usage: python3 main.py -d xxx/projects/android\n"
-                                                 "Or usage: python3 main.py xx/android6 xx/android7 xx/andoid8\n"
-                                                 "Or usage: python3 main.py -d xxx/projects/android xx/tomcat6.0.1 xxx/tomcat6.0.2")
-    parser.add_argument("sourcePaths", nargs="*", help="The path to the directory with a single project's code")
-    parser.add_argument("-o", "--outputPath", help="The directory to output the CSVs with code smells")
-    parser.add_argument("-d", "--projDir", help="The direct parent directory contains all projects")
-    args = parser.parse_args()
-    projDir = [f.path for f in os.scandir(args.projDir) if f.is_dir()] if args.projDir else []
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    main(config.items('main.projPaths'))
 
-    main(args.sourcePaths + projDir, args.outputPath)
 
