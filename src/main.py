@@ -1,7 +1,7 @@
 import datetime
 import os.path
 import configparser
-from src import DEFAULT_OUTPUT
+from src import DEFAULT_OUTPUT, PROJECT_PATH
 import shutil
 
 from app import App
@@ -50,7 +50,5 @@ def getVersion(filename, projectName):
 
 if __name__ == '__main__':
     config = configparser.ConfigParser()
-    config.read('config.ini')
+    config.read(os.path.join(PROJECT_PATH, 'config.ini'))
     main(config.items('main.projPaths'))
-
-

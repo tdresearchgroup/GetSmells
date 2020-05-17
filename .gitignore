@@ -1,4 +1,5 @@
-.idea
+**/.idea
+**/*.iml
 __pycache__
 .DS_Store
 .vscode
