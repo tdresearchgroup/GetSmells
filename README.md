@@ -22,6 +22,8 @@ the top of both `understandapi.py` and `understandcli.py`.
 getsmells
 ├── bin: some tools for data integration.
 │   ├── vulNameAsColumn.py: The motivation is to rotate table that vul_name as column, class name as row.
+│   ├── unfoldColumn.py: It unfolds multiple value columns to multiple rows.
+│                        For example, "name, class1 class2"(one row) => "name, class1" "name, class2"(two rows).
 │   ├── mapFileToClass.py: The motivation is that some vulnerability data only talks about file instead of classes
 │   ├── vulIntegration.py: After main.py, this script combines vulnerabilities and smells together.
 ├── src
@@ -50,6 +52,7 @@ getsmells
 ``` 
 
 # 3. Usage
+## Usage for getting smells & combining vuls
 Three steps to use it
 0. Set source code directory & vuls data in `config.ini`
 1. Extract smells from source code
@@ -63,6 +66,9 @@ Output is in `xxx/getsmells/getsmell-output/smells/`
 python3 vulIntegration.py
 ```
 Output is in `xxx/getsmells/getsmells-output/smell&vul/`
+
+## Usage for other data process tools
+They are well documented in these script using ArgumentParser. Please refer that.
 
 # 4. Smells included
 Some extracted smells are based off the criteria outlined in [Object-Oriented Metrics in Practice](http://www.springer.com/us/book/9783540244295) by
