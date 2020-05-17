@@ -36,7 +36,7 @@ def cleanSmellOutput(projName):
     outputDir = f'{DEFAULT_OUTPUT}/smells/{projName}'
     outputOverall = f'{DEFAULT_OUTPUT}/smells/{projName}.csv'
 
-    print(f"Clean existing smell output at '{outputDir}' & {outputOverall}.csv)\n")
+    print(f"Clean existing smell output at '{outputDir}' & '{outputOverall}')\n")
     shutil.rmtree(outputDir, ignore_errors=True)
     if os.path.isfile(outputOverall):
         os.remove(outputOverall)
