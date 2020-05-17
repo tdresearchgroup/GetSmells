@@ -2,7 +2,7 @@
 This tool do 2 things:
 
 1. Extracts code smells from Java source code using the [Understand API](https://scitools.com/support/understand-api-overview/)
-2. Data process after extracting code smells
+2. Combine code smells and vuls data together
 
 # 1. Prerequisites
 GetSmells is written to work on either Windows or MacOS (tested on Windows 7 and MacOS 10.14)
@@ -15,13 +15,14 @@ the top of both `understandapi.py` and `understandcli.py`.
 2. Python: 
   * Python 3.6+ is required 
   * [NumPy](https://docs.scipy.org/doc/numpy/index.html) is required: `pip3 install numpy`
+  * Add project in PYTHONPATH
 
 # 2. Project Structure
 ```
 getsmells
 ├── bin: some tools for data integration.
-│   ├── mapFileToClass.py: The motivation is that original vulnerability data only talks about file instead of classes
-│   ├── oneFileForOneProj.py: After vulIntegration.py, we got each file per project version. This script combines all versions together and generate one file per project
+│   ├── vulNameAsColumn.py: The motivation is to rotate table that vul_name as column, class name as row.
+│   ├── mapFileToClass.py: The motivation is that some vulnerability data only talks about file instead of classes
 │   ├── vulIntegration.py: After main.py, this script combines vulnerabilities and smells together.
 ├── src
 │   ├── app.py: real application
@@ -43,45 +44,25 @@ getsmells
 │   │   ├── packageLevelSmellExtractor.py
 │   │   ├── packageLevelSmellExtractor.py
 ├── README.md
+├── config.ini: parameters to run for main.py and vulIntegration.py
 ├── .pylintrc
 └── .gitignore 
 ``` 
 
 # 3. Usage
 Three steps to use it
+0. Set source code directory & vuls data in `config.ini`
 1. Extract smells from source code
 ```
-// a. We can list all project directories one by one
-python3 main.py xx/android6 xx/android7 ...
-
-// b. We can provide -d parameter to indicate the direct parent directory contains all projects (but only one directory)
-// For example, if we put all android6, android7, android8 into a directory called xxx/android
-python3 main.py -d xxx/android
-
-// c. We can combine a and b together
-python3 main.py -d xxx/android xxx/tomcat1 xxx/tomcat2 xxx/tomcat3
-
-// d. We can specify output path for a. b. c (default in getsmells/getsmell-output)
-python3 main.py -o xxx/output blablabla..
+python3 main.py
 ```
-Data will be output in `xxx/getsmells/getsmell-output/smells/`
+Output is in `xxx/getsmells/getsmell-output/smells/`
 
 2. Combine smells with vulnerabilities
 ```
-// should specify the output path the same as in step1 and vulnerability data directory
-python3 vulIntegration.py -s xxx/getsmells-output -v xxx/vulData
+python3 vulIntegration.py
 ```
-Data will be output in `xxx/getsmells/getsmells-output/smell&vul/`
-
-3. Integrate all versions of a project into a single file for analysis
-```
-// Specify a list of projects to integrate and the output path from step2
-python3 oneFileForOneProj.py apache-tomcat apache-cxf android -d xxx/getsmells/getsmells-output/smell&vul
-```
-Data will be output in `xxx/getsmells/getsmells-output/smell&vul/{project}-allversions.csv`
-
-4. The reason to separate to 3 steps is step 1 takes tooooo much time, I try to make all statistics into Step2/3. 
-
+Output is in `xxx/getsmells/getsmells-output/smell&vul/`
 
 # 4. Smells included
 Some extracted smells are based off the criteria outlined in [Object-Oriented Metrics in Practice](http://www.springer.com/us/book/9783540244295) by
