@@ -91,7 +91,7 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 - LOC (Lines of Code) > mean of system
 
 **Refused Bequest (Class-Level)**
-- *On the diffuseness and the impact on maintainability of code smells: a large scale empirical investigation*
+*On the diffuseness and the impact on maintainability of code smells: a large scale empirical investigation*
 - Child Class overrides more than half of its parent class's methods, calculated by:
 - LMC (Local Method Count) > 1/2 * TMC (Total Method Count)
 
@@ -100,22 +100,22 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 - WMC (Weighted Method Count) <= 45 and NOPA (Number of Public Accesses) >= 5
 
 **Hub-Like Dependency**
-- *Automatic Detection of Instability Architectural Smells*
+*Automatic Detection of Instability Architectural Smells*
 - ingoing dependencies > median
 - outgoing dependencies > median
 - |ingoing dependencies - outgoing dependencies| <  1/4 (ingoing dependencies + outgoing dependencies)
 
 **Cyclic Dependency**
-- *Automatic Detection of Instability Architectural Smells*
+*Automatic Detection of Instability Architectural Smells*
 - involves dependency cycle
 
 **Unhealthy Inheritance Hierarchy**
-- *Hotspot Patterns: The Formal Definition and Automatic Detection of Architecture Smells*
+*Hotspot Patterns: The Formal Definition and Automatic Detection of Architecture Smells*
 - a parent class depends on one of its children OR
 - a class depends on a parent class and all its children
 
 **Brain Class**
-- *Are all code smells harmful? A study of God Classes and Brain Classes in the evolution of three open source systems*
+*Are all code smells harmful? A study of God Classes and Brain Classes in the evolution of three open source systems*
 - not (GC) God Class
 - WMC (Weighted Method Count) >= 47
 - TCC (Tight Class Cohesion) < 0.5
@@ -133,14 +133,14 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 - Inputs > mean of system
 
 **Shotgun Surgery**
-- *The Evolution and Impact of Code Smells: A Case Study of Two Open Source Systems*
+*The Evolution and Impact of Code Smells: A Case Study of Two Open Source Systems*
 - CM (Changing Methods) > 10
     - CM: number of distinct methods that call a method of the class
 - CC (Changing Classes) > 5
     - CC: number of classes in which the methods that call the measured method are defined
     
 **Brain Method**
-- *Are all code smells harmful? A study of God Classes and Brain Classes in the evolution of three open source systems*
+*Are all code smells harmful? A study of God Classes and Brain Classes in the evolution of three open source systems*
 - LOC (Lines of Code) > 65
 - CYCLO (Cyclomatic Complexity) / LOC (Line of Code) >= 0.24 ^
 - MAXNESTING (Maximum Nesting Level) >= 5
@@ -148,7 +148,7 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
 
 ## 4.3 Package Level Smells
 **Unstable Dependency**
-- *Automatic Detection of Instability Architectural Smells*
+*Automatic Detection of Instability Architectural Smells*
     1. obtaining from the graph all the dependencies between packages
     2. computing the Instability metric for every package of the system;
       Ca : Afferent Couplings : The number of classes outside this category that depend upon classes within this category.
@@ -157,7 +157,7 @@ Some extracted smells are based off the criteria outlined in [Object-Oriented Me
     3. for every package, checking if it is afferent of a less stable package stable category. I=1 indicates a maximally instable category
 
 **Cyclic Dependency**
-- *Automatic Detection of Instability Architectural Smells*
+*Automatic Detection of Instability Architectural Smells*
 
 # 5. Useful Links
 * [Understand Overview](https://scitools.com/sup/api-2/)
