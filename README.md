@@ -71,9 +71,8 @@ Output is in `xxx/getsmells/getsmells-output/smell&vul/`
 They are well documented in these script using ArgumentParser. Please refer that.
 
 # 4. Smells included
-Some extracted smells are based off the criteria outlined in [Object-Oriented Metrics in Practice](http://www.springer.com/us/book/9783540244295) by
- [Michele Lanza](http://www.inf.usi.ch/lanza/index.html) and [Radu Marinescu](http://loose.upt.ro/reengineering/research/), while others are described
- in [On the diffuseness and the impact on maintainability of code smells: a large scale empirical investigation](https://link.springer.com/article/10.1007/s10664-017-9535-z).
+The extracted smells are based on the rules-based detection strategies outlined in [Object-Oriented Metrics in Practice](http://www.springer.com/us/book/9783540244295) by
+ [Michele Lanza](http://www.inf.usi.ch/lanza/index.html) and [Radu Marinescu](http://loose.upt.ro/reengineering/research/), [On the diffuseness and the impact on maintainability of code smells: a large scale empirical investigation](https://link.springer.com/article/10.1007/s10664-017-9535-z) and [Arcan: A Tool for Architectural Smells Detection](https://ieeexplore.ieee.org/document/7958506).
 
 ## 4.1 Class Level Smells
 **God Class (Class-Level)**
