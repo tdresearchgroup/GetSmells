@@ -151,15 +151,18 @@ The extracted smells are based on the rule-based detection strategies outlined i
 **Unstable Dependency**
 *Automatic Detection of Instability Architectural Smells*
 
-    1. obtaining from the graph all the dependencies between packages    
-    2. computing the Instability metric for every package of the system;
+1. Obtaining from the graph all the dependencies between packages    
+2. Computing the Instability metric for every package of the system;
       Ca : Afferent Couplings : The number of classes outside this category that depend upon classes within this category.
       Ce : Efferent Couplings : The number of classes inside this category that depend upon classes outside this categories.
       I : Instability : (Ce ÷ (Ca+Ce)) : This metric has the range [0,1]. I=0 indicates a maximally     
-    3. for every package, checking if it is afferent of a less stable package stable category. I=1 indicates a maximally instable category
+3. For every package, checking if it is afferent of a less stable package stable category. I=1 indicates a maximally instable category
 
 **Cyclic Dependency**
 *Automatic Detection of Instability Architectural Smells*
+
+1. Extracting the dependency graph relative to the requested affected level (class or package).
+2. Launching a depth first search algorithm on the graph to detect dependency cycle
 
 # 5. Useful Links
 * [Understand Overview](https://scitools.com/sup/api-2/)
