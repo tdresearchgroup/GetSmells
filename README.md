@@ -71,6 +71,8 @@ Output is in `xxx/getsmells/getsmells-output/smell&vul/`
 They are well documented in these script using ArgumentParser. Please refer that.
 
 # 4. Smells included
+
+<!---
 The extracted smells are based on the rule-based detection strategies outlined in [Object-Oriented Metrics in Practice](http://www.springer.com/us/book/9783540244295), [On the diffuseness and the impact on maintainability of code smells: a large scale empirical investigation](https://link.springer.com/article/10.1007/s10664-017-9535-z) and [Arcan: A Tool for Architectural Smells Detection](https://ieeexplore.ieee.org/document/7958506).
  
  The metrics used in the rule-based detection strategies for each smell is listed below. 
@@ -150,6 +152,8 @@ The extracted smells are based on the rule-based detection strategies outlined i
 **Cyclic Dependency**
 1. Extracting the dependency graph relative to the requested affected level (class or package).
 2. Launching a depth first search algorithm on the graph to detect dependency cycle
+
+-->
 
 # 5. Useful Links
 * [Understand Overview](https://scitools.com/sup/api-2/)
