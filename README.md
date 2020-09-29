@@ -1,8 +1,5 @@
 # 0. Instruction
-This tool do 2 things:
-
-1. Extracts code smells from Java source code using the [Understand API](https://scitools.com/support/understand-api-overview/)
-2. Combine code smells and vuls data together
+GetSmells extracts code smells from Java source code using the [Understand API](https://scitools.com/support/understand-api-overview/)
 
 # 1. Prerequisites
 GetSmells is written to work on either Windows or MacOS (tested on Windows 7 and MacOS 10.14)
@@ -71,6 +68,29 @@ Output is in `xxx/getsmells/getsmells-output/smell&vul/`
 They are well documented in these script using ArgumentParser. Please refer that.
 
 # 4. Smells included
+
+GetSmells detects the following smells:
+
+Code/Design Smells:
+* God Class 
+* Lazy Class
+* Complex Class
+* Large Class
+* Data Class
+* Refused Bequest
+* Brain Class
+* Feature Envy
+* Long Method
+* Long Parameter List
+* Brain Method
+* Shotgun Surgery
+
+Architecture Smells:
+* Hub-Like Dependency
+* Unstable Dependency
+* Cyclic Dependency
+* Unhealthy Inheritance Hierarchy
+
 
 <!---
 The extracted smells are based on the rule-based detection strategies outlined in [Object-Oriented Metrics in Practice](http://www.springer.com/us/book/9783540244295), [On the diffuseness and the impact on maintainability of code smells: a large scale empirical investigation](https://link.springer.com/article/10.1007/s10664-017-9535-z) and [Arcan: A Tool for Architectural Smells Detection](https://ieeexplore.ieee.org/document/7958506).
