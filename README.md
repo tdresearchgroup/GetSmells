@@ -1,5 +1,5 @@
 # 0. Instruction
-GetSmells extracts code smells from Java source code using the [Understand API](https://scitools.com/support/understand-api-overview/)
+GetSmells extracts code/design and architecture smells from Java source code using the [Understand API](https://scitools.com/support/understand-api-overview/).
 
 # 1. Prerequisites
 GetSmells is written to work on either Windows or MacOS (tested on Windows 7 and MacOS 10.14)
@@ -69,7 +69,7 @@ They are well documented in these script using ArgumentParser. Please refer that
 
 # 4. Smells included
 
-GetSmells detects the following smells:
+GetSmells detects the following smells. The tool uses rules-based detection strategies and algorithms as described in this [document]() to extract the code smells. 
 
 Code/Design Smells:
 * God Class 
