@@ -69,7 +69,7 @@ They are well documented in these script using ArgumentParser. Please refer that
 
 # 4. Smells included
 
-GetSmells detects the following smells. The tool uses rules-based detection strategies and algorithms as described in this [document]() to extract the code smells. 
+GetSmells detects the following smells. The tool uses rules-based detection strategies and algorithms as described in this [document](https://github.com/tdresearchgroup/GetSmells/blob/yuhan/rules.pdf) to extract the code smells. 
 
 Code/Design Smells:
 * God Class 
