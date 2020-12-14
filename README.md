@@ -1,11 +1,12 @@
-Disclaimer: GetSmells is a software built for research purposes and not meant to be commercialized or used for any other purposes but research. Contact Dr. Zadia Codabux (zcodabux AT cs DOT usask DOT ca) if you need additional information. 
+# Disclaimer: GetSmells is a software built for research purposes and not meant to be commercialized or used for any other purposes but research. 
+Contact Dr. Zadia Codabux (zcodabux AT cs DOT usask DOT ca) if you need additional information. 
 
-Cite as:
-@inproceedings{Sultana2020,
-  title={Examining the Relationship of Code and Architectural Smells with Software Vulnerabilities},
-  author={Sultana, Kazi Zakia and Codabux, Zadia and Williams, Byron J},
-  booktitle={27th Asia-Pacific Software Engineering Conference (APSEC)},
-  year={2020}
+Cite as: <br/>
+@inproceedings{Sultana2020,<br/>
+  title={Examining the Relationship of Code and Architectural Smells with Software Vulnerabilities},<br/>
+  author={Sultana, Kazi Zakia and Codabux, Zadia and Williams, Byron J},<br/>
+  booktitle={27th Asia-Pacific Software Engineering Conference (APSEC)},<br/>
+  year={2020}<br/>
 }
 
 
