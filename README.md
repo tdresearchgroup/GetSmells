@@ -1,4 +1,4 @@
-# Disclaimer: GetSmells is a software built for research purposes and not meant to be commercialized or used for any other purposes but research. 
+### Disclaimer: GetSmells is a software built for research purposes and not meant to be commercialized or used for any other purposes but research. 
 Contact Dr. Zadia Codabux (zcodabux AT cs DOT usask DOT ca) if you need additional information. 
 
 Cite as: <br/>
