@@ -9,7 +9,7 @@ class MethodLevelMetricsUtil(MetricsUtil):
     def generateMetrics(self):
         methodLib = {}
         totalMethodsCount = len(self.methodEnts)
-        print("\tCalculating complex metrics for", totalMethodsCount, "methods...")
+        # print("\tCalculating complex metrics for", totalMethodsCount, "methods...")
 
         for methodEnt in self.methodEnts:
             methodLongName = f"{methodEnt.longname()}@{methodEnt.id()}"

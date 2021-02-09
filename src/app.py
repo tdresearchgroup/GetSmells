@@ -61,6 +61,8 @@ class App:
                                    methodSmellExtractor.getMethodMetrics())
 
         classSmellExtractor = ClassLevelSmellExtractor(classEnts)
+        if not methodSmells:
+            return
         classSmells = classSmellExtractor.getSmells(methodSmells)
         self._generateDetailReport(outputCsvFileClasses,
                                    classSmells,
@@ -83,6 +85,8 @@ class App:
         :return: None
         """
         data = deepcopy(smells)
+        if not smells:
+            return
 
         # detail without metrics
         fieldnames = ['Name'] + [x for x in next(iter(smells.values()))]

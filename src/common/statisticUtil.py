@@ -1,5 +1,5 @@
 import numpy as np
-
+import sys
 
 def getMean(dataList):
     return np.mean(dataList)
@@ -26,5 +26,6 @@ def getCumulativeZ(dataList, z):
 
 def printProgress(count, total):
     statusUpdateInterval = round(total/10)
-    if count % statusUpdateInterval == 0:
-        print(f"\t\t{str(round(count/total*100))}% complete")
+    # if count % statusUpdateInterval == 0:
+    #     print(f"\t\t{str(round(count/total*100))}% complete")
+    #     sys.stdout.flush()

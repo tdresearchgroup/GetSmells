@@ -6,7 +6,7 @@ class PackageLevelMetricsUtil:
 
     def generateMetrics(self):
         packageLib = {}
-        print("\tCalculating metrics for packages...")
+        # print("\tCalculating metrics for packages...")
 
         for classEnt in self.classEnts:
             packageName = self.clsPkMap[classEnt.longname()]

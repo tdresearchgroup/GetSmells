@@ -19,7 +19,7 @@ class PackageSmellExtractor:
         return unstableSet
 
     def getSmells(self):
-        print(f"\tExtracting smells for {len(self.__packageMetrics)} packages...")
+        # print(f"\tExtracting smells for {len(self.__packageMetrics)} packages...")
         packageSmells = {}
         cyclicDepSmells = self.getCyclicDepSmells({k: v["dependsOnPk"] for k, v in self.__packageMetrics.items()})
         for pkName, metrics in self.__packageMetrics.items():

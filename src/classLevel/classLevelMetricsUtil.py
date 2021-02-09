@@ -11,7 +11,7 @@ class ClassLevelMetricsUtil(MetricsUtil):
     def generateMetrics(self):
         classLib = {}
         totalClassesCount = len(self.classEnts)
-        print("\tCalculating complex metrics for", totalClassesCount, "classes...")
+        # print("\tCalculating complex metrics for", totalClassesCount, "classes...")
 
         for classEnt in self.classEnts:
             classLongName = classEnt.longname()

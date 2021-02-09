@@ -20,7 +20,7 @@ class ClassLevelSmellExtractor:
     def getSmells(self, methodSmells):
         classSmells = {}
         totalClassCount = len(self.__classMetrics)
-        print("\tExtracting smells for", totalClassCount, "classes...")
+        # print("\tExtracting smells for", totalClassCount, "classes...")
 
         firstQuatileLOC = getQuartile(self.getMetricDistribution("LOC"), 1)
         meanLOC = getMean(self.getMetricDistribution("LOC"))

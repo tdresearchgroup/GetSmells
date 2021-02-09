@@ -10,7 +10,7 @@ class MethodLevelSmellExtractor:
     def getSmells(self):
         methodSmells = {}
         totalMethodsCount = len(self.__methodMetrics)
-        print("\tExtracting smells for", totalMethodsCount, "methods...")
+        # print("\tExtracting smells for", totalMethodsCount, "methods...")
 
         parameterMean = getMean(self.getMetricDistribution("inputs"))
         locMean = getMean(self.getMetricDistribution("LOC"))
