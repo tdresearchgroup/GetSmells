@@ -39,7 +39,7 @@ def main(nameDirPairs):
             # print("GetSmells complete!")
         break
 
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '&#9608', printEnd = "\r"):
     """
     Call in a loop to create terminal progress bar
     @params:
