@@ -24,7 +24,7 @@ the top of both `understandapi.py` and `understandcli.py`.
 2. Python: 
   * Python 3.6+ is required 
   * [NumPy](https://docs.scipy.org/doc/numpy/index.html) is required: `pip3 install numpy`
-  * Add project in PYTHONPATH
+  * Add the path of GetSmells in PYTHONPATH
 
 # 2. Project Structure
 ```
