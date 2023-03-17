@@ -1,4 +1,6 @@
-### Disclaimer: GetSmells is a software built for research purposes and not meant to be commercialized or used for any other purposes but research. 
+![Get_Smell_Logo](https://user-images.githubusercontent.com/40151410/225946379-4498f9a0-7d40-4b01-819a-e19c1a66ba57.png)
+
+### GetSmells is a software built for research purposes and not meant to be commercialized or used for any other purposes but research. 
 Contact Dr. Zadia Codabux (zcodabux AT cs DOT usask DOT ca) if you need additional information. 
 
 Cite as: <br/>
